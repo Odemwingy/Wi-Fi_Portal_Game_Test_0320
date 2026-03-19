@@ -81,6 +81,31 @@ const packageMetadata = [
       emitsStructuredLogs: true,
       supportsTraceContext: true
     }
+  }),
+  gamePackageMetadataSchema.parse({
+    id: "runway-rush",
+    name: "Runway Rush",
+    version: "1.0.0",
+    frontend: {
+      route: "/games/runway-rush",
+      assetsPath: "/opt/games/runway-rush/frontend"
+    },
+    server: {
+      image: "registry.local/runway-rush-server:1.0.0",
+      port: 8091
+    },
+    realtime: {
+      protocol: "sse"
+    },
+    dependencies: [],
+    capabilities: ["single-player", "points-reporting"],
+    healthcheck: {
+      path: "/health"
+    },
+    observability: {
+      emitsStructuredLogs: true,
+      supportsTraceContext: true
+    }
   })
 ];
 
@@ -94,6 +119,8 @@ export const buildChannelCatalog = (): ChannelCatalogEntry[] =>
           ? "Fast head-to-head quiz battles for onboard LAN play."
           : metadata.id === "word-rally"
             ? "Letter-based multiplayer word rounds designed for invite-code matches."
+            : metadata.id === "runway-rush"
+              ? "Short reaction rounds for passengers who want a quick solo score chase."
             : "Single-player puzzle loops optimized for short sessions.",
       route: metadata.frontend.route,
       categories:
@@ -101,6 +128,8 @@ export const buildChannelCatalog = (): ChannelCatalogEntry[] =>
           ? ["Multiplayer", "Trivia", "Featured"]
           : metadata.id === "word-rally"
             ? ["Multiplayer", "Word", "Featured"]
+            : metadata.id === "runway-rush"
+              ? ["Single Player", "Reaction", "Featured"]
             : ["Single Player", "Puzzle", "Relaxed"],
       capabilities: metadata.capabilities,
       points_enabled: metadata.capabilities.includes("points-reporting")

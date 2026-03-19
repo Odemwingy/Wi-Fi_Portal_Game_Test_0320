@@ -24,11 +24,12 @@ describe("AppService", () => {
   it("returns a channel catalog backed by package metadata", () => {
     const catalog = service.getCatalog(startTrace());
 
-    expect(catalog).toHaveLength(3);
+    expect(catalog).toHaveLength(4);
     expect(catalog.map((entry) => entry.game_id)).toEqual([
       "quiz-duel",
       "cabin-puzzle",
-      "word-rally"
+      "word-rally",
+      "runway-rush"
     ]);
   });
 });

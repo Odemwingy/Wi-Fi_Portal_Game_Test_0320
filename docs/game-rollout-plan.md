@@ -7,10 +7,11 @@
 - PRD 要求总计 `25` 款游戏，其中 `15` 款支持单机 + 联机对战，`10` 款为单机游戏。
 - 技术架构采用统一 `Game Channel + Game Platform + Game Packages`，联机仅考虑机上局域网内对战。
 - 首发目标不是一次性交付 25 款，而是先用 `2-5` 款代表性游戏跑通频道、启动器、房间、实时协议、积分与权益闭环。
-- 当前代码基线里已经有三款验证游戏：
+- 当前代码基线里已经有四款验证游戏：
   - `quiz-duel`：双人答题对战，已接入房间、WS、积分、独立 package 页面。
   - `cabin-puzzle`：单机拼图，已接入启动器与独立 package 页面。
   - `word-rally`：双人词汇回合对战，已接入房间、WS、积分与独立 package 页面。
+  - `runway-rush`：单机反应挑战，已接入启动器、积分与独立 package 页面。
 
 ## 2. 选型原则
 
@@ -58,7 +59,7 @@
 | ID | 游戏名 | 类型 | 复杂度 | 优先级 | 推荐批次 | 当前状态 | 备注 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `cabin-puzzle` | Cabin Puzzle | 拼图 | S | P0 | Wave A | 已实现 | 当前首个单机验证样例 |
-| `runway-rush` | Runway Rush | 反应闪避 | S | P1 | Wave A | 规划中 | 易做短局和时长积分 |
+| `runway-rush` | Runway Rush | 反应闪避 | S | P1 | Wave A | 已实现 | 易做短局和时长积分 |
 | `seat-upgrade-shuffle` | Seat Upgrade Shuffle | 排列益智 | S | P1 | Wave A | 规划中 | 点击拖拽即可完成交互 |
 | `luggage-logic` | Luggage Logic | 箱包排序 | S | P1 | Wave B | 规划中 | 适合低端终端 |
 | `meal-cart-match` | Meal Cart Match | 三消/配对 | M | P1 | Wave B | 规划中 | 资源与动画控制要克制 |
@@ -175,7 +176,7 @@
 
 ## 7. 当前建议的 backlog 对齐关系
 
-- `#29` 对齐 Wave A 当前已落地部分：`quiz-duel`、`cabin-puzzle`
+- `#29` 对齐 Wave A 当前已落地部分：`quiz-duel`、`cabin-puzzle`、`word-rally`、`runway-rush`
 - `#10` 对齐频道分类、推荐位和内容展示能力
 - `#11/#12` 对齐联机类游戏底座
 - `#13/#16/#17` 对齐积分、排行榜、配置化运营
@@ -183,6 +184,6 @@
 
 ## 8. 下一步执行建议
 
-1. 先把 Wave A 的另外 `3` 款补成 issue 子任务，优先 `word-rally`、`memory-match-duel`、`runway-rush`。
+1. 先把 Wave A 剩余未落地的 `1` 款 `memory-match-duel` 拆成独立 issue，并同步补一个 `spot-the-difference-race` 作为 Wave B 预研项。
 2. 在后台配置能力落地前，先用静态 catalog 驱动首发内容，避免卡住 package 接入节奏。
 3. 所有新游戏必须先过 `single-player` 或 `multiplayer` 接入模板，不允许临时特判。
