@@ -10,6 +10,7 @@ import {
   MockHttpAirlinePointsAdapter
 } from "./airline-points.adapter";
 import { PointsService } from "./points.service";
+import { PointsRulesService } from "./points-rules.service";
 import {
   AirlinePointsConfigRepository,
   StateStoreAirlinePointsConfigRepository
@@ -19,14 +20,29 @@ import {
   StateStoreAirlinePointsSyncRepository
 } from "./repositories/airline-points-sync.repository";
 import { InMemoryJsonStateStore } from "./repositories/json-state-store";
+import {
+  PointsAuditRepository,
+  StateStorePointsAuditRepository
+} from "./repositories/points-audit.repository";
 import { PointsRepository, StateStorePointsRepository } from "./repositories/points.repository";
+import {
+  PointsRuleConfigRepository,
+  StateStorePointsRuleConfigRepository
+} from "./repositories/points-rule-config.repository";
 
 describe("PointsService", () => {
   it("records points reports, aggregates totals, and deduplicates by report id", async () => {
-    const repository: PointsRepository = new StateStorePointsRepository(
-      new InMemoryJsonStateStore()
+    const stateStore = new InMemoryJsonStateStore();
+    const repository: PointsRepository = new StateStorePointsRepository(stateStore);
+    const pointsRuleConfigRepository: PointsRuleConfigRepository =
+      new StateStorePointsRuleConfigRepository(stateStore);
+    const pointsAuditRepository: PointsAuditRepository =
+      new StateStorePointsAuditRepository(stateStore);
+    const pointsRulesService = new PointsRulesService(
+      pointsRuleConfigRepository,
+      pointsAuditRepository
     );
-    const service = new PointsService(repository);
+    const service = new PointsService(repository, pointsRulesService);
     const trace = startTrace();
 
     const firstReport = await service.reportPoints(trace, {
@@ -43,6 +59,7 @@ describe("PointsService", () => {
     });
 
     expect(firstReport.summary.total_points).toBe(20);
+    expect(firstReport.audit_entry.awarded_points).toBe(20);
     expect(firstReport.summary.by_game).toEqual({
       "quiz-duel": 20
     });
@@ -89,10 +106,17 @@ describe("PointsService", () => {
   });
 
   it("builds a leaderboard ordered by total points and capped by limit", async () => {
-    const repository: PointsRepository = new StateStorePointsRepository(
-      new InMemoryJsonStateStore()
+    const stateStore = new InMemoryJsonStateStore();
+    const repository: PointsRepository = new StateStorePointsRepository(stateStore);
+    const pointsRuleConfigRepository: PointsRuleConfigRepository =
+      new StateStorePointsRuleConfigRepository(stateStore);
+    const pointsAuditRepository: PointsAuditRepository =
+      new StateStorePointsAuditRepository(stateStore);
+    const pointsRulesService = new PointsRulesService(
+      pointsRuleConfigRepository,
+      pointsAuditRepository
     );
-    const service = new PointsService(repository);
+    const service = new PointsService(repository, pointsRulesService);
     const trace = startTrace();
 
     await service.reportPoints(trace, {
@@ -159,7 +183,19 @@ describe("PointsService", () => {
       new MockHttpAirlinePointsAdapter(),
       new LegacyBatchAirlinePointsAdapter()
     );
-    const service = new PointsService(repository, airlinePointsService);
+    const pointsRuleConfigRepository: PointsRuleConfigRepository =
+      new StateStorePointsRuleConfigRepository(stateStore);
+    const pointsAuditRepository: PointsAuditRepository =
+      new StateStorePointsAuditRepository(stateStore);
+    const pointsRulesService = new PointsRulesService(
+      pointsRuleConfigRepository,
+      pointsAuditRepository
+    );
+    const service = new PointsService(
+      repository,
+      pointsRulesService,
+      airlinePointsService
+    );
     const trace = startTrace();
 
     const response = await service.reportPoints(trace, {
@@ -177,6 +213,7 @@ describe("PointsService", () => {
       airline_code: "MU",
       status: "synced"
     });
+    expect(response.audit_entry.awarded_points).toBe(32);
     expect(response.summary.total_points).toBe(32);
   });
 });

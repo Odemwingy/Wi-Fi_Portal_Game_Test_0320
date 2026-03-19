@@ -32,6 +32,8 @@ import {
   sharedPlatformMetricsService
 } from "./platform-metrics.service";
 import { PointsController } from "./points.controller";
+import { PointsRulesController } from "./points-rules.controller";
+import { PointsRulesService } from "./points-rules.service";
 import { PointsService } from "./points.service";
 import { RewardsController } from "./rewards.controller";
 import { RewardsService } from "./rewards.service";
@@ -69,6 +71,14 @@ import {
   StateStorePointsRepository
 } from "./repositories/points.repository";
 import {
+  PointsAuditRepository,
+  StateStorePointsAuditRepository
+} from "./repositories/points-audit.repository";
+import {
+  PointsRuleConfigRepository,
+  StateStorePointsRuleConfigRepository
+} from "./repositories/points-rule-config.repository";
+import {
   RewardInventoryRepository,
   StateStoreRewardInventoryRepository
 } from "./repositories/reward-inventory.repository";
@@ -100,6 +110,7 @@ import { TraceMiddleware } from "./trace.middleware";
     AirlinePointsController,
     AppController,
     ChannelContentController,
+    PointsRulesController,
     RoomController,
     PointsController,
     RewardsController
@@ -114,6 +125,7 @@ import { TraceMiddleware } from "./trace.middleware";
     LegacyBatchAirlinePointsAdapter,
     MockHttpAirlinePointsAdapter,
     PlatformDiagnosticsService,
+    PointsRulesService,
     PointsService,
     RewardsService,
     RoomService,
@@ -175,6 +187,14 @@ import { TraceMiddleware } from "./trace.middleware";
     {
       provide: PointsRepository,
       useClass: StateStorePointsRepository
+    },
+    {
+      provide: PointsRuleConfigRepository,
+      useClass: StateStorePointsRuleConfigRepository
+    },
+    {
+      provide: PointsAuditRepository,
+      useClass: StateStorePointsAuditRepository
     },
     {
       provide: WordRallyStateRepository,

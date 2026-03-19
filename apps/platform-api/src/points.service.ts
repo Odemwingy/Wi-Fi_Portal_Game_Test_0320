@@ -29,6 +29,7 @@ import {
   PointsRepository
 } from "./repositories/points.repository";
 import { AirlinePointsService } from "./airline-points.service";
+import { PointsRulesService } from "./points-rules.service";
 
 const logger = createStructuredLogger("platform-api.points");
 
@@ -37,6 +38,8 @@ export class PointsService {
   constructor(
     @Inject(PointsRepository)
     private readonly pointsRepository: PointsRepository,
+    @Inject(PointsRulesService)
+    private readonly pointsRulesService: PointsRulesService,
     @Optional()
     @Inject(AirlinePointsService)
     private readonly airlinePointsService?: AirlinePointsService
@@ -128,18 +131,24 @@ export class PointsService {
       room_id: parsedPayload.room_id ?? null
     });
 
-    const nextSummary = appendPointsReport(existingSummary, report);
+    const evaluation = await this.pointsRulesService.evaluateReport(span, report);
+    const awardedReport = pointsReportRecordSchema.parse({
+      ...report,
+      points: evaluation.awarded_points
+    });
+    const nextSummary = appendPointsReport(existingSummary, awardedReport);
     const storedSummary = await this.pointsRepository.set(
       parsedPayload.passenger_id,
       nextSummary
     );
     const airlineSync = await this.airlinePointsService?.syncReportedPoints(
       span,
-      report
+      awardedReport
     );
 
     const response = pointsReportResponseSchema.parse({
       airline_sync: airlineSync ?? null,
+      audit_entry: evaluation.audit_entry,
       summary: passengerPointsSummarySchema.parse(storedSummary),
       trace_id: traceContext.trace_id
     });
@@ -148,11 +157,12 @@ export class PointsService {
       input_summary: JSON.stringify({
         game_id: parsedPayload.game_id,
         passenger_id: parsedPayload.passenger_id,
-        points: parsedPayload.points,
+        points: evaluation.awarded_points,
         report_id: parsedPayload.report_id
       }),
       output_summary: `${response.summary.total_points} total points`,
       metadata: {
+        applied_rule_ids: response.audit_entry.applied_rule_ids,
         airline_sync_status: response.airline_sync?.status ?? null,
         by_game: response.summary.by_game,
         deduplicated: existingSummary.processed_report_ids.includes(

@@ -106,6 +106,7 @@ The platform now exposes a shared points reporting API:
 - `POST /api/points/report`
 - `GET /api/points/passengers/:passengerId`
 - `GET /api/points/leaderboard?limit=6`
+- `GET /api/points/audit?passenger_id=...&limit=20`
 
 Each package report must include:
 
@@ -137,6 +138,19 @@ This layer is intentionally modeled as an outbox:
 - `realtime` configs attempt sync during the report call
 - `batch` configs queue a pending record until manual or scheduled dispatch
 - failures are persisted with `attempt_count`, `last_error`, and `next_retry_at`
+
+The platform now also exposes a configurable points rules surface:
+
+- `GET /api/admin/points-rules/config?airline_code=MU&game_id=quiz-duel`
+- `PUT /api/admin/points-rules/config`
+- `GET /api/admin/points-rules/audit?passenger_id=...&game_id=...`
+
+Rule sets are evaluated server-side during `POST /api/points/report`:
+
+- default behavior preserves the current passthrough award amount
+- optional rules can add duration bonus, result bonus, room bonus, or flat entry bonus
+- each report returns an `audit_entry` with `applied_rule_ids`, `requested_points`, `awarded_points`, and a per-rule breakdown
+- rule sets can enforce `max_points_per_report` caps without trusting the package client
 
 ## Rewards Contract
 

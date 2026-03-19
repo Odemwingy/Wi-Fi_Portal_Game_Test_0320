@@ -202,6 +202,103 @@ const runAirlinePointsSmoke = async ({ hostBootstrap }) => {
   }
 }
 
+const runPointsRulesSmoke = async ({ hostBootstrap }) => {
+  logStep("logging in as admin for points rules smoke")
+  const adminSession = await requestJson("/api/admin/auth/login", {
+    body: {
+      password: "portal-super-123",
+      username: "super-admin"
+    },
+    method: "POST"
+  })
+
+  const pointsRulesConfig = {
+    airline_code: "MU",
+    game_id: "quiz-duel",
+    max_points_per_report: 30,
+    rules: [
+      {
+        applies_to_events: ["any"],
+        enabled: true,
+        id: "requested-points",
+        kind: "requested_points_multiplier",
+        label: "Requested points passthrough",
+        multiplier: 1
+      },
+      {
+        applies_to_events: ["result"],
+        enabled: true,
+        id: "winner-bonus",
+        kind: "metadata_boolean_bonus",
+        label: "Winner bonus",
+        metadata_key: "is_winner",
+        boolean_match: true,
+        points: 7
+      },
+      {
+        applies_to_events: ["result"],
+        enabled: true,
+        id: "multiplayer-bonus",
+        kind: "flat_bonus",
+        label: "Multiplayer room bonus",
+        points: 5,
+        require_room: true
+      }
+    ]
+  }
+
+  try {
+    await requestJson("/api/admin/points-rules/config", {
+      body: pointsRulesConfig,
+      headers: createAdminHeaders(adminSession.session_token),
+      method: "PUT"
+    })
+
+    const reportResponse = await requestJson("/api/points/report", {
+      body: {
+        airline_code: "MU",
+        game_id: "quiz-duel",
+        metadata: {
+          event_type: "result",
+          is_winner: true
+        },
+        passenger_id: hostBootstrap.session.passengerId,
+        points: 20,
+        reason: "smoke points rules validation",
+        report_id: `smoke-points-rules-${uniqueSuffix}`,
+        room_id: "smoke-room-rules",
+        session_id: hostBootstrap.session.sessionId
+      },
+      method: "POST"
+    })
+
+    assert.equal(reportResponse.audit_entry.awarded_points, 30)
+    assert.deepEqual(reportResponse.audit_entry.applied_rule_ids, [
+      "requested-points",
+      "winner-bonus",
+      "multiplayer-bonus"
+    ])
+
+    const auditResponse = await requestJson(
+      `/api/points/audit?passenger_id=${encodeURIComponent(hostBootstrap.session.passengerId)}&limit=5`
+    )
+    assert.ok(
+      auditResponse.entries.some(
+        (entry) =>
+          entry.report_id === `smoke-points-rules-${uniqueSuffix}`
+          && entry.awarded_points === 30
+      ),
+      "expected points audit entry with capped awarded points"
+    )
+    logStep("points rules config and audit flow passed")
+  } finally {
+    await requestJson("/api/admin/auth/logout", {
+      headers: createAdminHeaders(adminSession.session_token),
+      method: "POST"
+    })
+  }
+}
+
 const closeSocket = (socket) =>
   new Promise((resolve) => {
     if (
@@ -573,6 +670,9 @@ const run = async () => {
     assert.ok(finalMetrics.http.path_counts["GET /api/health"] >= 1)
 
     logStep("final metrics passed")
+    await runPointsRulesSmoke({
+      hostBootstrap
+    })
     await runAirlinePointsSmoke({
       hostBootstrap
     })

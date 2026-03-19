@@ -75,6 +75,8 @@ The API container is wired to Redis by default and exposes:
 - `GET  http://127.0.0.1:3000/api/admin/auth/me`
 - `POST http://127.0.0.1:3000/api/admin/auth/logout`
 - `GET  http://127.0.0.1:3000/api/admin/audit/logs`
+- `GET|PUT http://127.0.0.1:3000/api/admin/points-rules/config`
+- `GET http://127.0.0.1:3000/api/admin/points-rules/audit`
 - `GET|PUT http://127.0.0.1:3000/api/admin/airline-points/config`
 - `GET  http://127.0.0.1:3000/api/admin/airline-points/sync-records`
 - `POST http://127.0.0.1:3000/api/admin/airline-points/dispatch-pending`
@@ -89,6 +91,7 @@ The default environment template is [`.env.example`](./.env.example). The Redis 
 - `apps/channel-web` now also exposes a minimal content admin surface at `/admin/channel`.
 - `apps/platform-api` is the initial Game Platform service shell.
 - `apps/platform-api` now includes a configurable airline points sync outbox with realtime and batch dispatch modes.
+- `apps/platform-api` now includes a configurable points rules engine with audit ledger and per-game rule sets.
 - `packages/game-sdk` defines the integration contract for onboard game packages.
 - `packages/shared-observability` is created at project bootstrap time, per the observability wiki requirements.
 - `apps/platform-api` can now switch between in-memory state and Redis-backed state through `STATE_STORE_BACKEND`.
@@ -112,7 +115,7 @@ These are local demo credentials for the current implementation of `/admin/chann
 ## Test Baseline
 
 - `pnpm test` covers unit and integration cases.
-- `pnpm test:smoke` validates the Docker-backed API, websocket core flow, and airline sync retry path against a running local stack.
+- `pnpm test:smoke` validates the Docker-backed API, websocket core flow, points rules audit path, and airline sync retry path against a running local stack.
 - Compatibility, weak-network, and release-gate expectations are documented in [`docs/test-strategy.md`](./docs/test-strategy.md).
 - The 25-game candidate inventory, rollout waves, and acceptance matrix are documented in [`docs/game-rollout-plan.md`](./docs/game-rollout-plan.md).
 - The Spot the Difference Race research and implementation breakdown is documented in [`docs/spot-the-difference-race-plan.md`](./docs/spot-the-difference-race-plan.md).

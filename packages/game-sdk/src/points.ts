@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { pointsAirlineSyncSummarySchema } from "./airline-points";
+import { pointsAuditEntrySchema } from "./points-rules";
 
 export const pointsReportRequestSchema = z.object({
   airline_code: z.string().min(2).max(8).optional(),
@@ -46,6 +47,7 @@ export const pointsLeaderboardEntrySchema = z.object({
 
 export const pointsReportResponseSchema = z.object({
   airline_sync: pointsAirlineSyncSummarySchema.nullable(),
+  audit_entry: pointsAuditEntrySchema,
   summary: passengerPointsSummarySchema,
   trace_id: z.string().min(1)
 });

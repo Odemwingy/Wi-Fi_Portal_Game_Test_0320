@@ -5,6 +5,14 @@ import { startTrace } from "@wifi-portal/shared-observability";
 import { PointsRepository, StateStorePointsRepository } from "./repositories/points.repository";
 import { InMemoryJsonStateStore } from "./repositories/json-state-store";
 import {
+  PointsAuditRepository,
+  StateStorePointsAuditRepository
+} from "./repositories/points-audit.repository";
+import {
+  PointsRuleConfigRepository,
+  StateStorePointsRuleConfigRepository
+} from "./repositories/points-rule-config.repository";
+import {
   RewardInventoryRepository,
   StateStoreRewardInventoryRepository
 } from "./repositories/reward-inventory.repository";
@@ -12,6 +20,7 @@ import {
   RewardsRepository,
   StateStoreRewardsRepository
 } from "./repositories/rewards.repository";
+import { PointsRulesService } from "./points-rules.service";
 import { PointsService } from "./points.service";
 import { RewardsService } from "./rewards.service";
 
@@ -26,7 +35,15 @@ describe("RewardsService", () => {
     );
     const rewardInventoryRepository: RewardInventoryRepository =
       new StateStoreRewardInventoryRepository(stateStore);
-    const pointsService = new PointsService(pointsRepository);
+    const pointsRuleConfigRepository: PointsRuleConfigRepository =
+      new StateStorePointsRuleConfigRepository(stateStore);
+    const pointsAuditRepository: PointsAuditRepository =
+      new StateStorePointsAuditRepository(stateStore);
+    const pointsRulesService = new PointsRulesService(
+      pointsRuleConfigRepository,
+      pointsAuditRepository
+    );
+    const pointsService = new PointsService(pointsRepository, pointsRulesService);
     const rewardsService = new RewardsService(
       pointsRepository,
       rewardsRepository,
@@ -97,7 +114,15 @@ describe("RewardsService", () => {
     );
     const rewardInventoryRepository: RewardInventoryRepository =
       new StateStoreRewardInventoryRepository(stateStore);
-    const pointsService = new PointsService(pointsRepository);
+    const pointsRuleConfigRepository: PointsRuleConfigRepository =
+      new StateStorePointsRuleConfigRepository(stateStore);
+    const pointsAuditRepository: PointsAuditRepository =
+      new StateStorePointsAuditRepository(stateStore);
+    const pointsRulesService = new PointsRulesService(
+      pointsRuleConfigRepository,
+      pointsAuditRepository
+    );
+    const pointsService = new PointsService(pointsRepository, pointsRulesService);
     const rewardsService = new RewardsService(
       pointsRepository,
       rewardsRepository,
