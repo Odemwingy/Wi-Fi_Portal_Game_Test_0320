@@ -273,6 +273,7 @@ export function SpotTheDifferenceRacePackagePage() {
     setIsReportingPoints(true);
 
     void reportPoints({
+      airline_code: launchContext.airlineCode,
       game_id: "spot-the-difference-race",
       metadata: {
         claimed_spot_count: effectiveState.claimedSpotCount,
@@ -300,6 +301,7 @@ export function SpotTheDifferenceRacePackagePage() {
   }, [
     currentPlayerPoints,
     effectiveState,
+    launchContext.airlineCode,
     launchContext.passengerId,
     launchContext.roomId,
     launchContext.sessionId

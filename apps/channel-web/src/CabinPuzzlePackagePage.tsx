@@ -107,6 +107,7 @@ export function CabinPuzzlePackagePage() {
 
     try {
       const response = await reportPoints({
+        airline_code: launchContext.airlineCode,
         game_id: "cabin-puzzle",
         metadata: {
           move_count: moveCount,

@@ -249,6 +249,7 @@ export function MemoryMatchDuelPackagePage() {
     setIsReportingPoints(true);
 
     void reportPoints({
+      airline_code: launchContext.airlineCode,
       game_id: "memory-match-duel",
       metadata: {
         matched_pair_count: memoryState.matchedPairCount,
@@ -280,6 +281,7 @@ export function MemoryMatchDuelPackagePage() {
       });
   }, [
     appendActivity,
+    launchContext.airlineCode,
     currentPlayerPoints,
     launchContext.passengerId,
     launchContext.sessionId,

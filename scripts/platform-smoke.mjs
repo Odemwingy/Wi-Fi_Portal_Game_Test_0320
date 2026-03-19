@@ -35,6 +35,10 @@ const requestJson = async (path, options = {}) => {
   return data
 }
 
+const createAdminHeaders = (sessionToken) => ({
+  authorization: `Bearer ${sessionToken}`
+})
+
 const waitForOpen = (socket) =>
   new Promise((resolve, reject) => {
     socket.once("open", resolve)
@@ -96,6 +100,105 @@ const createRealtimeClient = ({
   return {
     messages,
     socket
+  }
+}
+
+const runAirlinePointsSmoke = async ({ hostBootstrap }) => {
+  logStep("logging in as admin for airline points smoke")
+  const adminSession = await requestJson("/api/admin/auth/login", {
+    body: {
+      password: "portal-super-123",
+      username: "super-admin"
+    },
+    method: "POST"
+  })
+
+  const configPayload = {
+    airline_code: "MU",
+    api_base_url: "https://demo-airline.invalid/points",
+    auth_credential: "demo-token",
+    auth_type: "bearer",
+    enabled: true,
+    field_mapping: {
+      activity_code: "game_id",
+      member_id: "passenger_id",
+      request_id: "report_id",
+      session_ref: "session_id"
+    },
+    points_multiplier: 1,
+    provider: "mock-http",
+    retry_policy: {
+      base_backoff_seconds: 1,
+      max_attempts: 3
+    },
+    simulation_mode: "retryable_failure",
+    sync_mode: "realtime"
+  }
+
+  try {
+    await requestJson("/api/admin/airline-points/config", {
+      body: configPayload,
+      headers: createAdminHeaders(adminSession.session_token),
+      method: "PUT"
+    })
+
+    logStep("reporting points with retryable airline sync failure")
+    const reportResponse = await requestJson("/api/points/report", {
+      body: {
+        airline_code: "MU",
+        game_id: "quiz-duel",
+        metadata: {
+          smoke: true
+        },
+        passenger_id: hostBootstrap.session.passengerId,
+        points: 15,
+        reason: "smoke airline sync validation",
+        report_id: `smoke-airline-${uniqueSuffix}`,
+        session_id: hostBootstrap.session.sessionId
+      },
+      method: "POST"
+    })
+
+    assert.equal(reportResponse.airline_sync.status, "failed")
+    assert.ok(reportResponse.airline_sync.next_retry_at)
+
+    const retried = await requestJson(
+      `/api/admin/airline-points/sync-records/${reportResponse.airline_sync.sync_id}/retry`,
+      {
+        headers: createAdminHeaders(adminSession.session_token),
+        method: "POST"
+      }
+    )
+    assert.equal(retried.status, "synced")
+
+    const syncRecords = await requestJson(
+      "/api/admin/airline-points/sync-records?airline_code=MU&limit=5",
+      {
+        headers: createAdminHeaders(adminSession.session_token)
+      }
+    )
+    assert.ok(
+      syncRecords.entries.some(
+        (entry) =>
+          entry.sync_id === reportResponse.airline_sync.sync_id
+          && entry.status === "synced"
+      ),
+      "expected retried airline sync record to be listed as synced"
+    )
+    logStep("airline points retry flow passed")
+  } finally {
+    await requestJson("/api/admin/airline-points/config", {
+      body: {
+        ...configPayload,
+        simulation_mode: "success"
+      },
+      headers: createAdminHeaders(adminSession.session_token),
+      method: "PUT"
+    })
+    await requestJson("/api/admin/auth/logout", {
+      headers: createAdminHeaders(adminSession.session_token),
+      method: "POST"
+    })
   }
 }
 
@@ -470,6 +573,9 @@ const run = async () => {
     assert.ok(finalMetrics.http.path_counts["GET /api/health"] >= 1)
 
     logStep("final metrics passed")
+    await runAirlinePointsSmoke({
+      hostBootstrap
+    })
     await runSpotTheDifferenceSmoke({
       guestBootstrap,
       hostBootstrap

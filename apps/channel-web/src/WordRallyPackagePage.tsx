@@ -272,6 +272,7 @@ export function WordRallyPackagePage() {
 
     try {
       const response = await reportPoints({
+        airline_code: launchContext.airlineCode,
         game_id: "word-rally",
         metadata: {
           completed_round_count: wordRallyState.completedRoundCount,

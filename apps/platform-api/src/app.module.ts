@@ -11,6 +11,14 @@ import { AdminAuditService } from "./admin-audit.service";
 import { AdminAuthController } from "./admin-auth.controller";
 import { AdminAuthGuard } from "./admin-auth.guard";
 import { AdminAuthService } from "./admin-auth.service";
+import { AirlinePointsController } from "./airline-points.controller";
+import {
+  AirlinePointsService
+} from "./airline-points.service";
+import {
+  LegacyBatchAirlinePointsAdapter,
+  MockHttpAirlinePointsAdapter
+} from "./airline-points.adapter";
 import { ChannelContentController } from "./channel-content.controller";
 import { ChannelContentService } from "./channel-content.service";
 import { MemoryMatchDuelAdapter } from "./game-adapters/memory-match-duel.adapter";
@@ -35,6 +43,14 @@ import {
   AdminAuditRepository,
   StateStoreAdminAuditRepository
 } from "./repositories/admin-audit.repository";
+import {
+  AirlinePointsConfigRepository,
+  StateStoreAirlinePointsConfigRepository
+} from "./repositories/airline-points-config.repository";
+import {
+  AirlinePointsSyncRepository,
+  StateStoreAirlinePointsSyncRepository
+} from "./repositories/airline-points-sync.repository";
 import {
   AdminSessionRepository,
   StateStoreAdminSessionRepository
@@ -81,6 +97,7 @@ import { TraceMiddleware } from "./trace.middleware";
 @Module({
   controllers: [
     AdminAuthController,
+    AirlinePointsController,
     AppController,
     ChannelContentController,
     RoomController,
@@ -92,7 +109,10 @@ import { TraceMiddleware } from "./trace.middleware";
     AdminAuditService,
     AdminAuthGuard,
     AdminAuthService,
+    AirlinePointsService,
     ChannelContentService,
+    LegacyBatchAirlinePointsAdapter,
+    MockHttpAirlinePointsAdapter,
     PlatformDiagnosticsService,
     PointsService,
     RewardsService,
@@ -119,6 +139,14 @@ import { TraceMiddleware } from "./trace.middleware";
     {
       provide: AdminSessionRepository,
       useClass: StateStoreAdminSessionRepository
+    },
+    {
+      provide: AirlinePointsConfigRepository,
+      useClass: StateStoreAirlinePointsConfigRepository
+    },
+    {
+      provide: AirlinePointsSyncRepository,
+      useClass: StateStoreAirlinePointsSyncRepository
     },
     {
       provide: AdminAuditRepository,

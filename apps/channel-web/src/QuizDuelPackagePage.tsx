@@ -276,6 +276,7 @@ export function QuizDuelPackagePage() {
 
     try {
       const response = await reportPoints({
+        airline_code: launchContext.airlineCode,
         game_id: "quiz-duel",
         metadata: {
           completed_rounds: quizDuelState.completedRoundCount,

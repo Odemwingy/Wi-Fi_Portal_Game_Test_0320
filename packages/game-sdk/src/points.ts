@@ -1,6 +1,9 @@
 import { z } from "zod";
 
+import { pointsAirlineSyncSummarySchema } from "./airline-points";
+
 export const pointsReportRequestSchema = z.object({
+  airline_code: z.string().min(2).max(8).optional(),
   game_id: z.string().min(1),
   metadata: z.record(z.unknown()).default({}),
   passenger_id: z.string().min(1),
@@ -12,6 +15,7 @@ export const pointsReportRequestSchema = z.object({
 });
 
 export const pointsReportRecordSchema = z.object({
+  airline_code: z.string().min(2).max(8).nullable(),
   game_id: z.string().min(1),
   metadata: z.record(z.unknown()),
   passenger_id: z.string().min(1),
@@ -41,6 +45,7 @@ export const pointsLeaderboardEntrySchema = z.object({
 });
 
 export const pointsReportResponseSchema = z.object({
+  airline_sync: pointsAirlineSyncSummarySchema.nullable(),
   summary: passengerPointsSummarySchema,
   trace_id: z.string().min(1)
 });

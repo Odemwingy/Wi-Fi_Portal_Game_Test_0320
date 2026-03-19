@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Optional
+} from "@nestjs/common";
 
 import {
   pointsLeaderboardEntrySchema,
@@ -23,6 +28,7 @@ import {
   buildEmptyPassengerPointsSummary,
   PointsRepository
 } from "./repositories/points.repository";
+import { AirlinePointsService } from "./airline-points.service";
 
 const logger = createStructuredLogger("platform-api.points");
 
@@ -30,7 +36,10 @@ const logger = createStructuredLogger("platform-api.points");
 export class PointsService {
   constructor(
     @Inject(PointsRepository)
-    private readonly pointsRepository: PointsRepository
+    private readonly pointsRepository: PointsRepository,
+    @Optional()
+    @Inject(AirlinePointsService)
+    private readonly airlinePointsService?: AirlinePointsService
   ) {}
 
   async getPassengerSummary(
@@ -112,6 +121,7 @@ export class PointsService {
       buildEmptyPassengerPointsSummary(parsedPayload.passenger_id);
 
     const report = pointsReportRecordSchema.parse({
+      airline_code: parsedPayload.airline_code ?? null,
       ...parsedPayload,
       metadata: parsedPayload.metadata ?? {},
       reported_at: new Date().toISOString(),
@@ -123,8 +133,13 @@ export class PointsService {
       parsedPayload.passenger_id,
       nextSummary
     );
+    const airlineSync = await this.airlinePointsService?.syncReportedPoints(
+      span,
+      report
+    );
 
     const response = pointsReportResponseSchema.parse({
+      airline_sync: airlineSync ?? null,
       summary: passengerPointsSummarySchema.parse(storedSummary),
       trace_id: traceContext.trace_id
     });
@@ -138,6 +153,7 @@ export class PointsService {
       }),
       output_summary: `${response.summary.total_points} total points`,
       metadata: {
+        airline_sync_status: response.airline_sync?.status ?? null,
         by_game: response.summary.by_game,
         deduplicated: existingSummary.processed_report_ids.includes(
           parsedPayload.report_id

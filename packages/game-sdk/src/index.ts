@@ -1,4 +1,5 @@
 export * from "./admin-auth";
+export * from "./airline-points";
 export * from "./bff";
 export * from "./channel-admin";
 export * from "./contracts";

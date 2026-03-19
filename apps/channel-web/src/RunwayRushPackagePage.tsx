@@ -192,6 +192,7 @@ export function RunwayRushPackagePage() {
 
     try {
       const response = await reportPoints({
+        airline_code: launchContext.airlineCode,
         game_id: "runway-rush",
         metadata: {
           accuracy,

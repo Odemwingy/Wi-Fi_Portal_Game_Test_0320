@@ -113,12 +113,30 @@ Each package report must include:
 - `game_id`, `passenger_id`, `session_id`
 - awarded `points`
 - a short `reason`
+- optional `airline_code` to trigger the airline sync adapter layer
 - optional `room_id`
 - optional structured `metadata`
 
 The canonical payloads and summary schemas live in:
 
 - `packages/game-sdk/src/points.ts`
+- `packages/game-sdk/src/airline-points.ts`
+
+The platform now also exposes an admin-only airline sync surface:
+
+- `GET /api/admin/airline-points/config?airline_code=MU`
+- `PUT /api/admin/airline-points/config`
+- `GET /api/admin/airline-points/sync-records?airline_code=MU&status=failed`
+- `POST /api/admin/airline-points/dispatch-pending`
+- `POST /api/admin/airline-points/sync-records/:syncId/retry`
+
+This layer is intentionally modeled as an outbox:
+
+- internal passenger points are still written first
+- airline sync records are keyed by an idempotency identity derived from `airline_code/session_id/passenger_id/report_id`
+- `realtime` configs attempt sync during the report call
+- `batch` configs queue a pending record until manual or scheduled dispatch
+- failures are persisted with `attempt_count`, `last_error`, and `next_retry_at`
 
 ## Rewards Contract
 

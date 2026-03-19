@@ -2,7 +2,22 @@ import { describe, expect, it } from "vitest";
 
 import { startTrace } from "@wifi-portal/shared-observability";
 
+import {
+  AirlinePointsService
+} from "./airline-points.service";
+import {
+  LegacyBatchAirlinePointsAdapter,
+  MockHttpAirlinePointsAdapter
+} from "./airline-points.adapter";
 import { PointsService } from "./points.service";
+import {
+  AirlinePointsConfigRepository,
+  StateStoreAirlinePointsConfigRepository
+} from "./repositories/airline-points-config.repository";
+import {
+  AirlinePointsSyncRepository,
+  StateStoreAirlinePointsSyncRepository
+} from "./repositories/airline-points-sync.repository";
 import { InMemoryJsonStateStore } from "./repositories/json-state-store";
 import { PointsRepository, StateStorePointsRepository } from "./repositories/points.repository";
 
@@ -127,5 +142,41 @@ describe("PointsService", () => {
       rank: 2,
       total_points: 18
     });
+  });
+
+  it("returns airline sync status when the report includes an airline code", async () => {
+    const stateStore = new InMemoryJsonStateStore();
+    const repository: PointsRepository = new StateStorePointsRepository(
+      stateStore
+    );
+    const airlineConfigRepository: AirlinePointsConfigRepository =
+      new StateStoreAirlinePointsConfigRepository(stateStore);
+    const airlineSyncRepository: AirlinePointsSyncRepository =
+      new StateStoreAirlinePointsSyncRepository(stateStore);
+    const airlinePointsService = new AirlinePointsService(
+      airlineConfigRepository,
+      airlineSyncRepository,
+      new MockHttpAirlinePointsAdapter(),
+      new LegacyBatchAirlinePointsAdapter()
+    );
+    const service = new PointsService(repository, airlinePointsService);
+    const trace = startTrace();
+
+    const response = await service.reportPoints(trace, {
+      airline_code: "MU",
+      game_id: "quiz-duel",
+      metadata: {},
+      passenger_id: "passenger-airline",
+      points: 32,
+      reason: "quiz duel completed",
+      report_id: "report-airline-1",
+      session_id: "session-airline-1"
+    });
+
+    expect(response.airline_sync).toMatchObject({
+      airline_code: "MU",
+      status: "synced"
+    });
+    expect(response.summary.total_points).toBe(32);
   });
 });
