@@ -1,0 +1,90 @@
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod
+} from "@nestjs/common";
+
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
+import { GameRuntimeService } from "./game-runtime.service";
+import { PointsController } from "./points.controller";
+import { PointsService } from "./points.service";
+import { RewardsController } from "./rewards.controller";
+import { RewardsService } from "./rewards.service";
+import {
+  InMemoryJsonStateStore,
+  JsonStateStore,
+  RedisJsonStateStore
+} from "./repositories/json-state-store";
+import {
+  PointsRepository,
+  StateStorePointsRepository
+} from "./repositories/points.repository";
+import {
+  RewardInventoryRepository,
+  StateStoreRewardInventoryRepository
+} from "./repositories/reward-inventory.repository";
+import {
+  RewardsRepository,
+  StateStoreRewardsRepository
+} from "./repositories/rewards.repository";
+import {
+  StateStoreQuizDuelStateRepository,
+  QuizDuelStateRepository
+} from "./repositories/quiz-duel-state.repository";
+import { StateStoreRoomRepository, RoomRepository } from "./repositories/room.repository";
+import { loadStateStoreConfig } from "./repositories/state-store.config";
+import { RoomController } from "./room.controller";
+import { RoomService } from "./room.service";
+import { TraceMiddleware } from "./trace.middleware";
+
+@Module({
+  controllers: [AppController, RoomController, PointsController, RewardsController],
+  providers: [
+    AppService,
+    PointsService,
+    RewardsService,
+    RoomService,
+    GameRuntimeService,
+    QuizDuelAdapter,
+    {
+      provide: JsonStateStore,
+      useFactory: () => {
+        const config = loadStateStoreConfig();
+        return config.backend === "redis"
+          ? new RedisJsonStateStore(config)
+          : new InMemoryJsonStateStore();
+      }
+    },
+    {
+      provide: RoomRepository,
+      useClass: StateStoreRoomRepository
+    },
+    {
+      provide: QuizDuelStateRepository,
+      useClass: StateStoreQuizDuelStateRepository
+    },
+    {
+      provide: PointsRepository,
+      useClass: StateStorePointsRepository
+    },
+    {
+      provide: RewardsRepository,
+      useClass: StateStoreRewardsRepository
+    },
+    {
+      provide: RewardInventoryRepository,
+      useClass: StateStoreRewardInventoryRepository
+    }
+  ]
+})
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(TraceMiddleware).forRoutes({
+      path: "*path",
+      method: RequestMethod.ALL
+    });
+  }
+}

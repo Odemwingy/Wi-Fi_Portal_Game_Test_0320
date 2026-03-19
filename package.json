@@ -1,0 +1,32 @@
+{
+  "name": "wifi-portal-game-channel",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.30.3",
+  "scripts": {
+    "build": "pnpm --filter @wifi-portal/shared-observability build && pnpm --filter @wifi-portal/game-sdk build && pnpm --filter @wifi-portal/platform-api build && pnpm --filter @wifi-portal/channel-web build",
+    "dev:api": "pnpm --filter @wifi-portal/platform-api dev",
+    "dev:api:redis": "STATE_STORE_BACKEND=redis REDIS_URL=redis://127.0.0.1:6379 pnpm --filter @wifi-portal/platform-api dev",
+    "dev:web": "pnpm --filter @wifi-portal/channel-web dev",
+    "infra:backend:up": "docker compose up -d redis platform-api",
+    "infra:backend:down": "docker compose stop platform-api redis",
+    "infra:redis:up": "docker compose up -d redis",
+    "infra:redis:down": "docker compose stop redis",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.23.0",
+    "@types/node": "^24.0.0",
+    "eslint": "^9.23.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "prettier": "^3.5.3",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.28.0",
+    "vitest": "^3.1.1"
+  }
+}

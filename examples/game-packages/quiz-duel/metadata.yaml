@@ -1,0 +1,23 @@
+id: quiz-duel
+name: Quiz Duel
+version: 1.0.0
+frontend:
+  route: /games/quiz-duel
+  assetsPath: /opt/games/quiz-duel/frontend
+server:
+  image: registry.local/quiz-duel-server:1.0.0
+  port: 8080
+realtime:
+  protocol: websocket
+dependencies:
+  - redis
+capabilities:
+  - multiplayer
+  - leaderboard
+  - invite-code
+  - points-reporting
+healthcheck:
+  path: /health
+observability:
+  emitsStructuredLogs: true
+  supportsTraceContext: true
