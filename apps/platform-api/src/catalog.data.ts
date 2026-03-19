@@ -1,9 +1,13 @@
 import {
   channelCatalogEntrySchema,
   channelConfigSchema,
+  channelContentStateSchema,
   gamePackageMetadataSchema,
+  managedChannelCatalogEntrySchema,
   type ChannelCatalogEntry,
-  type ChannelConfig
+  type ChannelConfig,
+  type ChannelContentState,
+  type ManagedChannelCatalogEntry
 } from "@wifi-portal/game-sdk";
 
 const packageMetadata = [
@@ -159,54 +163,137 @@ const packageMetadata = [
   })
 ];
 
-export const buildChannelCatalog = (): ChannelCatalogEntry[] =>
-  packageMetadata.map((metadata) =>
-    channelCatalogEntrySchema.parse({
-      game_id: metadata.id,
-      display_name: metadata.name,
-      description:
-        metadata.id === "quiz-duel"
-          ? "Fast head-to-head quiz battles for onboard LAN play."
-          : metadata.id === "word-rally"
-            ? "Letter-based multiplayer word rounds designed for invite-code matches."
-          : metadata.id === "memory-match-duel"
-              ? "Turn-based memory flips with shared board state and invite-room play."
-            : metadata.id === "spot-the-difference-race"
-              ? "Low-frequency spot-claim racing built for cabin invite rooms."
-            : metadata.id === "runway-rush"
-              ? "Short reaction rounds for passengers who want a quick solo score chase."
-            : "Single-player puzzle loops optimized for short sessions.",
-      route: metadata.frontend.route,
-      categories:
-        metadata.id === "quiz-duel"
-          ? ["Multiplayer", "Trivia", "Featured"]
-          : metadata.id === "word-rally"
-            ? ["Multiplayer", "Word", "Featured"]
-          : metadata.id === "memory-match-duel"
-              ? ["Multiplayer", "Memory", "Featured"]
-            : metadata.id === "spot-the-difference-race"
-              ? ["Multiplayer", "Observation", "Featured"]
-            : metadata.id === "runway-rush"
-              ? ["Single Player", "Reaction", "Featured"]
-            : ["Single Player", "Puzzle", "Relaxed"],
-      capabilities: metadata.capabilities,
-      points_enabled: metadata.capabilities.includes("points-reporting")
-    })
-  );
-
-export const buildChannelConfig = (
+export const buildDefaultChannelContent = (
   airlineCode: string,
   locale: string
-): ChannelConfig =>
-  channelConfigSchema.parse({
+): ChannelContentState =>
+  channelContentStateSchema.parse({
+    catalog: packageMetadata.map((metadata, index) =>
+      managedChannelCatalogEntrySchema.parse({
+        capabilities: metadata.capabilities,
+        categories: getBaseCategories(metadata.id).filter(
+          (category) => category !== "Featured"
+        ),
+        description: getBaseDescription(metadata.id),
+        display_name: metadata.name,
+        featured: getBaseCategories(metadata.id).includes("Featured"),
+        game_id: metadata.id,
+        points_enabled: metadata.capabilities.includes("points-reporting"),
+        route: metadata.frontend.route,
+        sort_order: index,
+        status: "published"
+      })
+    ),
+    channel_config: buildDefaultChannelConfig(airlineCode, locale),
+    updated_at: new Date().toISOString()
+  });
+
+export const buildChannelCatalog = (
+  content: ChannelContentState
+): ChannelCatalogEntry[] =>
+  content.catalog
+    .filter((entry) => entry.status === "published")
+    .sort((left, right) => left.sort_order - right.sort_order)
+    .map((entry) =>
+      channelCatalogEntrySchema.parse({
+        capabilities: entry.capabilities,
+        categories: addFeaturedCategory(entry.categories, entry.featured),
+        description: entry.description,
+        display_name: entry.display_name,
+        game_id: entry.game_id,
+        points_enabled: entry.points_enabled,
+        route: entry.route
+      })
+    );
+
+export const buildPublicChannelConfig = (
+  content: ChannelContentState
+): ChannelConfig => channelConfigSchema.parse(content.channel_config);
+
+export const listDefaultCatalogGameIds = () =>
+  packageMetadata.map((metadata) => metadata.id);
+
+export const mergeManagedCatalogEntry = (
+  baseEntry: ManagedChannelCatalogEntry,
+  input: {
+    categories: string[];
+    description: string;
+    featured: boolean;
+    sort_order: number;
+    status: "published" | "hidden";
+  }
+): ManagedChannelCatalogEntry =>
+  managedChannelCatalogEntrySchema.parse({
+    ...baseEntry,
+    categories: normalizeCategories(input.categories),
+    description: input.description.trim(),
+    featured: input.featured,
+    sort_order: input.sort_order,
+    status: input.status
+  });
+
+function buildDefaultChannelConfig(
+  airlineCode: string,
+  locale: string
+): ChannelConfig {
+  return channelConfigSchema.parse({
     airline_code: airlineCode,
     channel_name: `${airlineCode} Game Channel`,
     locale,
     hero_title: "Play lightweight games designed for onboard sessions.",
     sections: ["Featured", "Multiplayer", "Single Player", "Recently Added"],
     feature_flags: {
-      points_enabled: true,
+      airline_rewards_enabled: true,
       multiplayer_lobby_enabled: true,
-      airline_rewards_enabled: true
+      points_enabled: true
     }
   });
+}
+
+function getBaseCategories(gameId: string) {
+  switch (gameId) {
+    case "quiz-duel":
+      return ["Multiplayer", "Trivia", "Featured"];
+    case "word-rally":
+      return ["Multiplayer", "Word", "Featured"];
+    case "memory-match-duel":
+      return ["Multiplayer", "Memory", "Featured"];
+    case "spot-the-difference-race":
+      return ["Multiplayer", "Observation", "Featured"];
+    case "runway-rush":
+      return ["Single Player", "Reaction", "Featured"];
+    default:
+      return ["Single Player", "Puzzle", "Relaxed"];
+  }
+}
+
+function getBaseDescription(gameId: string) {
+  switch (gameId) {
+    case "quiz-duel":
+      return "Fast head-to-head quiz battles for onboard LAN play.";
+    case "word-rally":
+      return "Letter-based multiplayer word rounds designed for invite-code matches.";
+    case "memory-match-duel":
+      return "Turn-based memory flips with shared board state and invite-room play.";
+    case "spot-the-difference-race":
+      return "Low-frequency spot-claim racing built for cabin invite rooms.";
+    case "runway-rush":
+      return "Short reaction rounds for passengers who want a quick solo score chase.";
+    default:
+      return "Single-player puzzle loops optimized for short sessions.";
+  }
+}
+
+function addFeaturedCategory(categories: string[], featured: boolean) {
+  const normalized = normalizeCategories(categories);
+
+  if (!featured) {
+    return normalized;
+  }
+
+  return ["Featured", ...normalized.filter((category) => category !== "Featured")];
+}
+
+function normalizeCategories(categories: string[]) {
+  return [...new Set(categories.map((category) => category.trim()).filter(Boolean))];
+}

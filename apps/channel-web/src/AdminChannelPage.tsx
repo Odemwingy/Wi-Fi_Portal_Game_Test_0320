@@ -1,0 +1,414 @@
+import {
+  startTransition,
+  useEffect,
+  useState
+} from "react";
+
+import type { ChannelContentState } from "@wifi-portal/game-sdk";
+
+import {
+  getAdminChannelContent,
+  updateAdminChannelContent
+} from "./channel-api";
+
+type LoadStatus = "idle" | "loading" | "saving";
+
+export function AdminChannelPage() {
+  const [airlineCode, setAirlineCode] = useState("MU");
+  const [locale, setLocale] = useState("zh-CN");
+  const [reloadVersion, setReloadVersion] = useState(0);
+  const [draft, setDraft] = useState<ChannelContentState | null>(null);
+  const [status, setStatus] = useState<LoadStatus>("idle");
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const sortedCatalog = [...(draft?.catalog ?? [])].sort(
+    (left, right) => left.sort_order - right.sort_order
+  );
+  const publishedCount = draft?.catalog.filter(
+    (entry) => entry.status === "published"
+  ).length ?? 0;
+
+  useEffect(() => {
+    let isStale = false;
+
+    void (async () => {
+      setStatus("loading");
+      setError(null);
+      setNotice(null);
+
+      try {
+        const response = await getAdminChannelContent({
+          airline_code: airlineCode,
+          locale
+        });
+        if (isStale) {
+          return;
+        }
+        startTransition(() => {
+          setDraft(response);
+        });
+      } catch (loadError) {
+        if (!isStale) {
+          setError(loadError instanceof Error ? loadError.message : "Load failed");
+        }
+      } finally {
+        if (!isStale) {
+          setStatus("idle");
+        }
+      }
+    })();
+
+    return () => {
+      isStale = true;
+    };
+  }, [airlineCode, locale, reloadVersion]);
+
+  async function handleSave() {
+    if (!draft) {
+      return;
+    }
+
+    setStatus("saving");
+    setError(null);
+    setNotice(null);
+
+    try {
+      const response = await updateAdminChannelContent({
+        catalog: draft.catalog.map((entry) => ({
+          categories: entry.categories,
+          description: entry.description,
+          featured: entry.featured,
+          game_id: entry.game_id,
+          sort_order: entry.sort_order,
+          status: entry.status
+        })),
+        channel_config: draft.channel_config
+      });
+
+      startTransition(() => {
+        setDraft(response);
+      });
+      setNotice("配置已保存，频道首页会按最新配置返回内容。");
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "Save failed");
+    } finally {
+      setStatus("idle");
+    }
+  }
+
+  function updateConfigField(
+    field: "channel_name" | "hero_title",
+    value: string
+  ) {
+    setDraft((current) =>
+      current
+        ? {
+            ...current,
+            channel_config: {
+              ...current.channel_config,
+              [field]: value
+            }
+          }
+        : current
+    );
+  }
+
+  function updateFeatureFlag(flag: string, checked: boolean) {
+    setDraft((current) =>
+      current
+        ? {
+            ...current,
+            channel_config: {
+              ...current.channel_config,
+              feature_flags: {
+                ...current.channel_config.feature_flags,
+                [flag]: checked
+              }
+            }
+          }
+        : current
+    );
+  }
+
+  function updateSections(value: string) {
+    const sections = value
+      .split(",")
+      .map((section) => section.trim())
+      .filter(Boolean);
+
+    setDraft((current) =>
+      current
+        ? {
+            ...current,
+            channel_config: {
+              ...current.channel_config,
+              sections
+            }
+          }
+        : current
+    );
+  }
+
+  function updateCatalogEntry(
+    gameId: string,
+    patch: Partial<ChannelContentState["catalog"][number]>
+  ) {
+    setDraft((current) =>
+      current
+        ? {
+            ...current,
+            catalog: current.catalog.map((entry) =>
+              entry.game_id === gameId
+                ? {
+                    ...entry,
+                    ...patch
+                  }
+                : entry
+            )
+          }
+        : current
+    );
+  }
+
+  return (
+    <main className="shell">
+      <section className="hero-panel admin-hero">
+        <div>
+          <p className="eyebrow">Admin Console</p>
+          <h1>频道内容配置后台</h1>
+          <p className="hero-copy">
+            管理频道头图文案、分区、推荐位、分类、排序和上下架。前台
+            `/api/session/bootstrap`
+            与 `/api/channel/catalog` 会直接消费这里的配置。
+          </p>
+        </div>
+
+        <div className="hero-stat-card">
+          <strong>{publishedCount}</strong>
+          <span>Published entries</span>
+        </div>
+      </section>
+
+      <section className="dashboard">
+        <article className="panel">
+          <div className="panel-heading">
+            <div>
+              <p className="panel-kicker">Scope</p>
+              <h2>管理范围</h2>
+            </div>
+            <span className="pill">{status}</span>
+          </div>
+
+          <div className="form-grid">
+            <label>
+              Airline Code
+              <input
+                onChange={(event) => {
+                  setAirlineCode(event.target.value.toUpperCase());
+                }}
+                value={airlineCode}
+              />
+            </label>
+            <label>
+              Locale
+              <input
+                onChange={(event) => {
+                  setLocale(event.target.value);
+                }}
+                value={locale}
+              />
+            </label>
+          </div>
+
+          <div className="button-row">
+            <button
+              className="action-button"
+              onClick={() => {
+                setAirlineCode((current) => current.trim() || "MU");
+                setLocale((current) => current.trim() || "zh-CN");
+                setReloadVersion((current) => current + 1);
+              }}
+              type="button"
+            >
+              重新加载
+            </button>
+            <button
+              className="action-button action-button-primary"
+              disabled={!draft || status === "saving"}
+              onClick={() => void handleSave()}
+              type="button"
+            >
+              保存配置
+            </button>
+          </div>
+
+          {error ? <p className="admin-message admin-error">{error}</p> : null}
+          {notice ? <p className="admin-message admin-success">{notice}</p> : null}
+        </article>
+
+        <article className="panel">
+          <div className="panel-heading">
+            <div>
+              <p className="panel-kicker">Channel Config</p>
+              <h2>频道头部与开关</h2>
+            </div>
+          </div>
+
+          {draft ? (
+            <div className="admin-form-grid">
+              <label>
+                Channel Name
+                <input
+                  onChange={(event) => {
+                    updateConfigField("channel_name", event.target.value);
+                  }}
+                  value={draft.channel_config.channel_name}
+                />
+              </label>
+              <label>
+                Hero Title
+                <textarea
+                  onChange={(event) => {
+                    updateConfigField("hero_title", event.target.value);
+                  }}
+                  rows={3}
+                  value={draft.channel_config.hero_title}
+                />
+              </label>
+              <label>
+                Sections
+                <input
+                  onChange={(event) => {
+                    updateSections(event.target.value);
+                  }}
+                  value={draft.channel_config.sections.join(", ")}
+                />
+              </label>
+
+              <div className="admin-flag-grid">
+                {Object.entries(draft.channel_config.feature_flags).map(
+                  ([flag, enabled]) => (
+                    <label className="admin-flag-card" key={flag}>
+                      <span>{flag}</span>
+                      <input
+                        checked={enabled}
+                        onChange={(event) => {
+                          updateFeatureFlag(flag, event.target.checked);
+                        }}
+                        type="checkbox"
+                      />
+                    </label>
+                  )
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="empty-state compact">
+              <p>正在加载频道配置。</p>
+            </div>
+          )}
+        </article>
+
+        <article className="panel panel-span-2">
+          <div className="panel-heading">
+            <div>
+              <p className="panel-kicker">Catalog Management</p>
+              <h2>游戏上下架、推荐位与排序</h2>
+            </div>
+            <span className="pill">{sortedCatalog.length} games</span>
+          </div>
+
+          <div className="admin-game-grid">
+            {sortedCatalog.map((entry) => (
+              <article className="catalog-card admin-game-card" key={entry.game_id}>
+                <div className="catalog-topline">
+                  <strong>{entry.display_name}</strong>
+                  <span>{entry.game_id}</span>
+                </div>
+                <p>{entry.route}</p>
+
+                <div className="admin-card-grid">
+                  <label>
+                    Description
+                    <textarea
+                      onChange={(event) => {
+                        updateCatalogEntry(entry.game_id, {
+                          description: event.target.value
+                        });
+                      }}
+                      rows={3}
+                      value={entry.description}
+                    />
+                  </label>
+                  <label>
+                    Categories
+                    <input
+                      onChange={(event) => {
+                        updateCatalogEntry(entry.game_id, {
+                          categories: event.target.value
+                            .split(",")
+                            .map((category) => category.trim())
+                            .filter(Boolean)
+                        });
+                      }}
+                      value={entry.categories.join(", ")}
+                    />
+                  </label>
+                  <label>
+                    Sort Order
+                    <input
+                      min={0}
+                      onChange={(event) => {
+                        updateCatalogEntry(entry.game_id, {
+                          sort_order: Number(event.target.value) || 0
+                        });
+                      }}
+                      type="number"
+                      value={entry.sort_order}
+                    />
+                  </label>
+                </div>
+
+                <div className="admin-toggle-row">
+                  <label className="admin-toggle">
+                    <span>Published</span>
+                    <input
+                      checked={entry.status === "published"}
+                      onChange={(event) => {
+                        updateCatalogEntry(entry.game_id, {
+                          status: event.target.checked ? "published" : "hidden"
+                        });
+                      }}
+                      type="checkbox"
+                    />
+                  </label>
+                  <label className="admin-toggle">
+                    <span>Featured</span>
+                    <input
+                      checked={entry.featured}
+                      onChange={(event) => {
+                        updateCatalogEntry(entry.game_id, {
+                          featured: event.target.checked
+                        });
+                      }}
+                      type="checkbox"
+                    />
+                  </label>
+                </div>
+
+                <div className="tag-row">
+                  {entry.capabilities.map((capability) => (
+                    <span className="tag" key={capability}>
+                      {capability}
+                    </span>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
+        </article>
+      </section>
+    </main>
+  );
+}

@@ -287,7 +287,24 @@ input {
   color: var(--ink);
 }
 
+textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 96px;
+  padding: 14px 16px;
+  border: 1px solid rgba(20, 32, 44, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--ink);
+  font: inherit;
+}
+
 input:focus {
+  outline: 2px solid rgba(13, 108, 134, 0.2);
+  border-color: rgba(13, 108, 134, 0.35);
+}
+
+textarea:focus {
   outline: 2px solid rgba(13, 108, 134, 0.2);
   border-color: rgba(13, 108, 134, 0.35);
 }
@@ -345,6 +362,32 @@ input:focus {
 
 .search-row {
   margin-bottom: 16px;
+}
+
+.button-row,
+.section-chip-row,
+.admin-toggle-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.button-row,
+.section-chip-row {
+  margin-bottom: 16px;
+}
+
+.section-chip {
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(20, 32, 44, 0.08);
+  color: var(--ink);
+}
+
+.section-chip-active {
+  background: linear-gradient(135deg, rgba(13, 108, 134, 0.96), rgba(30, 86, 117, 0.9));
+  color: white;
 }
 
 .catalog-grid {
@@ -441,6 +484,67 @@ input:focus {
   display: flex;
   gap: 12px;
   justify-content: space-between;
+}
+
+.admin-hero {
+  align-items: start;
+}
+
+.admin-form-grid,
+.admin-card-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.admin-flag-grid,
+.admin-game-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-flag-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.admin-flag-card,
+.admin-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.admin-game-grid {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.admin-game-card {
+  border: 1px solid var(--line);
+}
+
+.admin-card-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.admin-message {
+  margin: 0;
+  font-weight: 600;
+}
+
+.admin-error {
+  color: #af4d4d;
+}
+
+.admin-success {
+  color: #1a8e67;
 }
 
 .tag-row,
@@ -963,6 +1067,8 @@ input:focus {
   }
 
   .form-grid,
+  .admin-form-grid,
+  .admin-card-grid,
   .cabin-puzzle-grid,
   .cabin-puzzle-summary,
   .launcher-meta-grid,

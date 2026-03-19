@@ -7,6 +7,8 @@ import {
 
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
+import { ChannelContentController } from "./channel-content.controller";
+import { ChannelContentService } from "./channel-content.service";
 import { MemoryMatchDuelAdapter } from "./game-adapters/memory-match-duel.adapter";
 import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
 import { SpotTheDifferenceRaceAdapter } from "./game-adapters/spot-the-difference-race.adapter";
@@ -25,6 +27,10 @@ import {
   MemoryMatchDuelStateRepository,
   StateStoreMemoryMatchDuelStateRepository
 } from "./repositories/memory-match-duel-state.repository";
+import {
+  ChannelContentRepository,
+  StateStoreChannelContentRepository
+} from "./repositories/channel-content.repository";
 import {
   InMemoryJsonStateStore,
   JsonStateStore,
@@ -61,9 +67,16 @@ import { RoomService } from "./room.service";
 import { TraceMiddleware } from "./trace.middleware";
 
 @Module({
-  controllers: [AppController, RoomController, PointsController, RewardsController],
+  controllers: [
+    AppController,
+    ChannelContentController,
+    RoomController,
+    PointsController,
+    RewardsController
+  ],
   providers: [
     AppService,
+    ChannelContentService,
     PlatformDiagnosticsService,
     PointsService,
     RewardsService,
@@ -86,6 +99,10 @@ import { TraceMiddleware } from "./trace.middleware";
           ? new RedisJsonStateStore(config)
           : new InMemoryJsonStateStore();
       }
+    },
+    {
+      provide: ChannelContentRepository,
+      useClass: StateStoreChannelContentRepository
     },
     {
       provide: RoomRepository,

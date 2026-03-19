@@ -56,8 +56,12 @@ export class AppController {
   }
 
   @Get("channel/catalog")
-  getCatalog(@Req() req: TraceRequest) {
-    return this.appService.getCatalog(req.trace_context!);
+  getCatalog(
+    @Req() req: TraceRequest,
+    @Query("airline_code") airlineCode = "MU",
+    @Query("locale") locale = "zh-CN"
+  ) {
+    return this.appService.getCatalog(req.trace_context!, airlineCode, locale);
   }
 
   @Post("session/bootstrap")

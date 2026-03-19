@@ -2,13 +2,22 @@ import { describe, expect, it } from "vitest";
 
 import { startTrace } from "@wifi-portal/shared-observability";
 
+import { ChannelContentService } from "./channel-content.service";
 import { AppService } from "./app.service";
+import { InMemoryJsonStateStore } from "./repositories/json-state-store";
+import {
+  ChannelContentRepository,
+  StateStoreChannelContentRepository
+} from "./repositories/channel-content.repository";
 
 describe("AppService", () => {
-  const service = new AppService();
+  const repository: ChannelContentRepository = new StateStoreChannelContentRepository(
+    new InMemoryJsonStateStore()
+  );
+  const service = new AppService(new ChannelContentService(repository));
 
-  it("bootstraps a validated session payload", () => {
-    const response = service.bootstrapSession(startTrace(), {
+  it("bootstraps a validated session payload", async () => {
+    const response = await service.bootstrapSession(startTrace(), {
       airline_code: "MU",
       cabin_class: "business",
       locale: "zh-CN",
@@ -21,8 +30,8 @@ describe("AppService", () => {
     expect(response.channel_config.airline_code).toBe("MU");
   });
 
-  it("returns a channel catalog backed by package metadata", () => {
-    const catalog = service.getCatalog(startTrace());
+  it("returns a channel catalog backed by managed package metadata", async () => {
+    const catalog = await service.getCatalog(startTrace(), "MU", "zh-CN");
 
     expect(catalog).toHaveLength(6);
     expect(catalog.map((entry) => entry.game_id)).toEqual([

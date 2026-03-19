@@ -84,6 +84,7 @@ export function App() {
   const [bootstrapData, setBootstrapData] =
     useState<SessionBootstrapResponse | null>(null);
   const [selectedGameId, setSelectedGameId] = useState("");
+  const [selectedCatalogSection, setSelectedCatalogSection] = useState("All");
   const [catalogQuery, setCatalogQuery] = useState("");
   const [roomDraftName, setRoomDraftName] = useState("Cabin Quiz Table");
   const [inviteCodeDraft, setInviteCodeDraft] = useState("");
@@ -274,6 +275,19 @@ export function App() {
       });
   }, [appendActivity, rememberProfile]);
 
+  const channelSectionsKey =
+    bootstrapData?.channel_config.sections.join("|") ?? "";
+
+  useEffect(() => {
+    const sections = [
+      "All",
+      ...channelSectionsKey.split("|").filter(Boolean)
+    ];
+    setSelectedCatalogSection((current) =>
+      sections.includes(current) ? current : (sections[0] ?? "All")
+    );
+  }, [bootstrapData?.trace_id, channelSectionsKey]);
+
   useEffect(() => {
     const session = bootstrapData?.session;
     const room = activeRoom;
@@ -457,7 +471,15 @@ export function App() {
     bootstrapData?.session.passengerId
   ]);
 
+  const availableCatalogSections = [
+    "All",
+    ...(bootstrapData?.channel_config.sections ?? [])
+  ];
   const filteredCatalog = (bootstrapData?.catalog ?? []).filter((entry) => {
+    if (!matchesCatalogSection(entry, selectedCatalogSection)) {
+      return false;
+    }
+
     if (!deferredCatalogQuery) {
       return true;
     }
@@ -1312,6 +1334,21 @@ export function App() {
             />
           </label>
 
+          <div className="section-chip-row">
+            {availableCatalogSections.map((section) => (
+              <button
+                className={`section-chip ${selectedCatalogSection === section ? "section-chip-active" : ""}`}
+                key={section}
+                onClick={() => {
+                  setSelectedCatalogSection(section);
+                }}
+                type="button"
+              >
+                {section}
+              </button>
+            ))}
+          </div>
+
           <div className="catalog-grid">
             {filteredCatalog.map((entry) => (
               <button
@@ -1675,6 +1712,29 @@ function generateSeatNumber(index: number) {
   const row = 30 + ((index - 1) % 8);
   const seat = ["A", "B", "C", "D", "E", "F"][(index - 1) % 6];
   return `${row}${seat}`;
+}
+
+function matchesCatalogSection(
+  entry: SessionBootstrapResponse["catalog"][number],
+  section: string
+) {
+  if (section === "All" || section === "Recently Added") {
+    return true;
+  }
+
+  if (section === "Featured") {
+    return entry.categories.includes("Featured");
+  }
+
+  if (section === "Multiplayer") {
+    return entry.capabilities.includes("multiplayer");
+  }
+
+  if (section === "Single Player") {
+    return entry.capabilities.includes("single-player");
+  }
+
+  return entry.categories.includes(section);
 }
 
 function formatShortTime(value: string) {

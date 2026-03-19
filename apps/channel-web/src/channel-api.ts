@@ -1,4 +1,5 @@
 import {
+  channelContentStateSchema,
   passengerPointsSummarySchema,
   pointsLeaderboardResponseSchema,
   pointsReportResponseSchema,
@@ -10,6 +11,8 @@ import {
   roomSnapshotSchema,
   sessionBootstrapResponseSchema,
   type CreateRoomRequest,
+  type ChannelContentState,
+  type ChannelContentUpdateRequest,
   type PassengerPointsSummary,
   type PassengerRewardsWallet,
   type PointsLeaderboardResponse,
@@ -59,6 +62,32 @@ export async function createRoom(
       method: "POST"
     },
     roomActionResponseSchema.parse
+  );
+}
+
+export async function getAdminChannelContent(payload: {
+  airline_code: string;
+  locale: string;
+}): Promise<ChannelContentState> {
+  const query = new URLSearchParams(payload);
+
+  return requestJson(
+    `/admin/channel/content?${query.toString()}`,
+    {},
+    channelContentStateSchema.parse
+  );
+}
+
+export async function updateAdminChannelContent(
+  payload: ChannelContentUpdateRequest
+): Promise<ChannelContentState> {
+  return requestJson(
+    "/admin/channel/content",
+    {
+      body: JSON.stringify(payload),
+      method: "PUT"
+    },
+    channelContentStateSchema.parse
   );
 }
 

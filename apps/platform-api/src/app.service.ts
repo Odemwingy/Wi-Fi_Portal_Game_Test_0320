@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 
 import {
   buildGameLaunchContext,
@@ -14,12 +14,17 @@ import {
   type TraceContext
 } from "@wifi-portal/shared-observability";
 
-import { buildChannelCatalog, buildChannelConfig } from "./catalog.data";
+import { ChannelContentService } from "./channel-content.service";
 
 const logger = createStructuredLogger("platform-api.bff");
 
 @Injectable()
 export class AppService {
+  constructor(
+    @Inject(ChannelContentService)
+    private readonly channelContentService: ChannelContentService
+  ) {}
+
   getGamePackageContract(): Pick<
     GamePackageMetadata,
     "id" | "name" | "version" | "capabilities"
@@ -32,13 +37,17 @@ export class AppService {
     };
   }
 
-  getChannelConfig(
+  async getChannelConfig(
     traceContext: TraceContext,
     airlineCode: string,
     locale = "en-US"
   ) {
     const span = startChildSpan(traceContext);
-    const channelConfig = buildChannelConfig(airlineCode, locale);
+    const channelConfig = await this.channelContentService.getPublicChannelConfig(
+      span,
+      airlineCode,
+      locale
+    );
 
     logger.info("channel_config.generated", span, {
       input_summary: JSON.stringify({ airline_code: airlineCode, locale }),
@@ -48,9 +57,17 @@ export class AppService {
     return channelConfig;
   }
 
-  getCatalog(traceContext: TraceContext) {
+  async getCatalog(
+    traceContext: TraceContext,
+    airlineCode = "MU",
+    locale = "zh-CN"
+  ) {
     const span = startChildSpan(traceContext);
-    const catalog = buildChannelCatalog();
+    const catalog = await this.channelContentService.getPublicCatalog(
+      span,
+      airlineCode,
+      locale
+    );
 
     logger.info("channel_catalog.loaded", span, {
       output_summary: `${catalog.length} entries`,
@@ -62,10 +79,10 @@ export class AppService {
     return catalog;
   }
 
-  bootstrapSession(
+  async bootstrapSession(
     traceContext: TraceContext,
     payload: unknown
-  ): SessionBootstrapResponse {
+  ): Promise<SessionBootstrapResponse> {
     const span = startChildSpan(traceContext);
     const parsedPayload = this.parseBootstrapPayload(payload, span);
     const passengerId =
@@ -85,12 +102,16 @@ export class AppService {
     const response = sessionBootstrapResponseSchema.parse({
       trace_id: traceContext.trace_id,
       session,
-      channel_config: this.getChannelConfig(
+      channel_config: await this.getChannelConfig(
         span,
         parsedPayload.airline_code,
         parsedPayload.locale
       ),
-      catalog: this.getCatalog(span)
+      catalog: await this.getCatalog(
+        span,
+        parsedPayload.airline_code,
+        parsedPayload.locale
+      )
     });
 
     logger.info("session.bootstrap.completed", span, {

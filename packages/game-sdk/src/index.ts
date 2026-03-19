@@ -1,4 +1,5 @@
 export * from "./bff";
+export * from "./channel-admin";
 export * from "./contracts";
 export * from "./metadata";
 export * from "./multiplayer";

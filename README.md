@@ -70,6 +70,7 @@ The API container is wired to Redis by default and exposes:
 - `GET http://127.0.0.1:3000/api/health`
 - `GET http://127.0.0.1:3000/api/health/ready`
 - `GET http://127.0.0.1:3000/api/metrics`
+- `GET|PUT http://127.0.0.1:3000/api/admin/channel/content`
 - `WS  http://127.0.0.1:3000/ws/game-room`
 
 The default environment template is [`.env.example`](./.env.example). The Redis container definition lives in [`docker-compose.yml`](./docker-compose.yml).
@@ -77,6 +78,7 @@ The default environment template is [`.env.example`](./.env.example). The Redis 
 ## Delivery Notes
 
 - `apps/channel-web` is the initial passenger entry surface for the game channel.
+- `apps/channel-web` now also exposes a minimal content admin surface at `/admin/channel`.
 - `apps/platform-api` is the initial Game Platform service shell.
 - `packages/game-sdk` defines the integration contract for onboard game packages.
 - `packages/shared-observability` is created at project bootstrap time, per the observability wiki requirements.
