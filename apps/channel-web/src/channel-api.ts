@@ -1,4 +1,7 @@
 import {
+  adminAuditListResponseSchema,
+  adminLoginRequestSchema,
+  adminSessionSchema,
   channelContentStateSchema,
   passengerPointsSummarySchema,
   pointsLeaderboardResponseSchema,
@@ -11,6 +14,9 @@ import {
   roomSnapshotSchema,
   sessionBootstrapResponseSchema,
   type CreateRoomRequest,
+  type AdminAuditListResponse,
+  type AdminLoginRequest,
+  type AdminSession,
   type ChannelContentState,
   type ChannelContentUpdateRequest,
   type PassengerPointsSummary,
@@ -68,26 +74,86 @@ export async function createRoom(
 export async function getAdminChannelContent(payload: {
   airline_code: string;
   locale: string;
+  session_token: string;
 }): Promise<ChannelContentState> {
-  const query = new URLSearchParams(payload);
+  const query = new URLSearchParams({
+    airline_code: payload.airline_code,
+    locale: payload.locale
+  });
 
   return requestJson(
     `/admin/channel/content?${query.toString()}`,
-    {},
+    {
+      headers: createAdminHeaders(payload.session_token)
+    },
     channelContentStateSchema.parse
   );
 }
 
 export async function updateAdminChannelContent(
-  payload: ChannelContentUpdateRequest
+  payload: ChannelContentUpdateRequest & {
+    session_token: string;
+  }
 ): Promise<ChannelContentState> {
   return requestJson(
     "/admin/channel/content",
     {
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        catalog: payload.catalog,
+        channel_config: payload.channel_config
+      }),
+      headers: createAdminHeaders(payload.session_token),
       method: "PUT"
     },
     channelContentStateSchema.parse
+  );
+}
+
+export async function loginAdmin(
+  payload: AdminLoginRequest
+): Promise<AdminSession> {
+  const parsedPayload = adminLoginRequestSchema.parse(payload);
+
+  return requestJson(
+    "/admin/auth/login",
+    {
+      body: JSON.stringify(parsedPayload),
+      method: "POST"
+    },
+    adminSessionSchema.parse
+  );
+}
+
+export async function getAdminMe(sessionToken: string): Promise<AdminSession> {
+  return requestJson(
+    "/admin/auth/me",
+    {
+      headers: createAdminHeaders(sessionToken)
+    },
+    adminSessionSchema.parse
+  );
+}
+
+export async function logoutAdmin(sessionToken: string) {
+  return requestJson(
+    "/admin/auth/logout",
+    {
+      headers: createAdminHeaders(sessionToken),
+      method: "POST"
+    },
+    (value) => value as { ok: true }
+  );
+}
+
+export async function getAdminAuditLogs(
+  sessionToken: string
+): Promise<AdminAuditListResponse> {
+  return requestJson(
+    "/admin/audit/logs",
+    {
+      headers: createAdminHeaders(sessionToken)
+    },
+    adminAuditListResponseSchema.parse
   );
 }
 
@@ -263,6 +329,12 @@ function normalizeBaseUrl(value: string | undefined) {
   }
 
   return value.replace(/\/$/, "");
+}
+
+function createAdminHeaders(sessionToken: string) {
+  return {
+    authorization: `Bearer ${sessionToken}`
+  };
 }
 
 function readErrorMessage(payload: Record<string, unknown> | null) {

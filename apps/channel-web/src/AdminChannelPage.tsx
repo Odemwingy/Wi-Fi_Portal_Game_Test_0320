@@ -1,23 +1,40 @@
-import {
-  startTransition,
-  useEffect,
-  useState
-} from "react";
+import { startTransition, useEffect, useState } from "react";
 
-import type { ChannelContentState } from "@wifi-portal/game-sdk";
+import type {
+  AdminAuditEntry,
+  AdminSession,
+  ChannelContentState
+} from "@wifi-portal/game-sdk";
 
 import {
+  getAdminAuditLogs,
   getAdminChannelContent,
+  getAdminMe,
+  loginAdmin,
+  logoutAdmin,
   updateAdminChannelContent
 } from "./channel-api";
 
-type LoadStatus = "idle" | "loading" | "saving";
+type LoadStatus = "authenticating" | "idle" | "loading" | "saving";
+
+type LoginForm = {
+  password: string;
+  username: string;
+};
+
+const ADMIN_SESSION_STORAGE_KEY = "wifi-portal-admin-session-token";
 
 export function AdminChannelPage() {
   const [airlineCode, setAirlineCode] = useState("MU");
   const [locale, setLocale] = useState("zh-CN");
   const [reloadVersion, setReloadVersion] = useState(0);
   const [draft, setDraft] = useState<ChannelContentState | null>(null);
+  const [adminSession, setAdminSession] = useState<AdminSession | null>(null);
+  const [auditEntries, setAuditEntries] = useState<AdminAuditEntry[]>([]);
+  const [loginForm, setLoginForm] = useState<LoginForm>({
+    password: "portal-super-123",
+    username: "super-admin"
+  });
   const [status, setStatus] = useState<LoadStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -28,8 +45,52 @@ export function AdminChannelPage() {
   const publishedCount = draft?.catalog.filter(
     (entry) => entry.status === "published"
   ).length ?? 0;
+  const canViewAudit = adminSession?.user.roles.some(
+    (role) => role === "ops_admin" || role === "super_admin"
+  ) ?? false;
 
   useEffect(() => {
+    const storedToken = readStoredAdminToken();
+    if (!storedToken) {
+      return;
+    }
+
+    let isStale = false;
+
+    void (async () => {
+      setStatus("authenticating");
+      setError(null);
+
+      try {
+        const session = await getAdminMe(storedToken);
+        if (isStale) {
+          return;
+        }
+
+        startTransition(() => {
+          setAdminSession(session);
+        });
+      } catch {
+        clearStoredAdminToken();
+      } finally {
+        if (!isStale) {
+          setStatus("idle");
+        }
+      }
+    })();
+
+    return () => {
+      isStale = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!adminSession) {
+      setDraft(null);
+      setAuditEntries([]);
+      return;
+    }
+
     let isStale = false;
 
     void (async () => {
@@ -38,15 +99,24 @@ export function AdminChannelPage() {
       setNotice(null);
 
       try {
-        const response = await getAdminChannelContent({
-          airline_code: airlineCode,
-          locale
-        });
+        const [content, audit] = await Promise.all([
+          getAdminChannelContent({
+            airline_code: airlineCode,
+            locale,
+            session_token: adminSession.session_token
+          }),
+          canViewAudit
+            ? getAdminAuditLogs(adminSession.session_token)
+            : Promise.resolve({ entries: [] })
+        ]);
+
         if (isStale) {
           return;
         }
+
         startTransition(() => {
-          setDraft(response);
+          setDraft(content);
+          setAuditEntries(audit.entries);
         });
       } catch (loadError) {
         if (!isStale) {
@@ -62,10 +132,49 @@ export function AdminChannelPage() {
     return () => {
       isStale = true;
     };
-  }, [airlineCode, locale, reloadVersion]);
+  }, [adminSession, airlineCode, locale, reloadVersion, canViewAudit]);
+
+  async function handleLogin() {
+    setStatus("authenticating");
+    setError(null);
+    setNotice(null);
+
+    try {
+      const session = await loginAdmin(loginForm);
+      persistAdminToken(session.session_token);
+      startTransition(() => {
+        setAdminSession(session);
+      });
+      setNotice(`已登录为 ${session.user.display_name}`);
+    } catch (loginError) {
+      setError(loginError instanceof Error ? loginError.message : "Login failed");
+    } finally {
+      setStatus("idle");
+    }
+  }
+
+  async function handleLogout() {
+    const sessionToken = adminSession?.session_token;
+    clearStoredAdminToken();
+
+    try {
+      if (sessionToken) {
+        await logoutAdmin(sessionToken);
+      }
+    } catch {
+      // Ignore logout network errors once the local session is cleared.
+    }
+
+    startTransition(() => {
+      setAdminSession(null);
+      setDraft(null);
+      setAuditEntries([]);
+    });
+    setNotice("已退出后台登录。");
+  }
 
   async function handleSave() {
-    if (!draft) {
+    if (!draft || !adminSession) {
       return;
     }
 
@@ -83,11 +192,17 @@ export function AdminChannelPage() {
           sort_order: entry.sort_order,
           status: entry.status
         })),
-        channel_config: draft.channel_config
+        channel_config: draft.channel_config,
+        session_token: adminSession.session_token
       });
+
+      const audit = canViewAudit
+        ? await getAdminAuditLogs(adminSession.session_token)
+        : { entries: [] };
 
       startTransition(() => {
         setDraft(response);
+        setAuditEntries(audit.entries);
       });
       setNotice("配置已保存，频道首页会按最新配置返回内容。");
     } catch (saveError) {
@@ -171,6 +286,89 @@ export function AdminChannelPage() {
     );
   }
 
+  if (!adminSession) {
+    return (
+      <main className="shell">
+        <section className="hero-panel admin-hero">
+          <div>
+            <p className="eyebrow">Admin Console</p>
+            <h1>后台登录与权限控制</h1>
+            <p className="hero-copy">
+              使用后台账号登录后，才能访问频道内容配置和审计日志。当前内置了
+              demo 账号，后续可以切到真实身份源。
+            </p>
+          </div>
+
+          <div className="hero-stat-card">
+            <strong>RBAC</strong>
+            <span>content / ops / super</span>
+          </div>
+        </section>
+
+        <section className="dashboard">
+          <article className="panel panel-span-2">
+            <div className="panel-heading">
+              <div>
+                <p className="panel-kicker">Admin Auth</p>
+                <h2>登录后台</h2>
+              </div>
+              <span className="pill">{status}</span>
+            </div>
+
+            <div className="form-grid">
+              <label>
+                Username
+                <input
+                  onChange={(event) => {
+                    setLoginForm((current) => ({
+                      ...current,
+                      username: event.target.value
+                    }));
+                  }}
+                  value={loginForm.username}
+                />
+              </label>
+              <label>
+                Password
+                <input
+                  onChange={(event) => {
+                    setLoginForm((current) => ({
+                      ...current,
+                      password: event.target.value
+                    }));
+                  }}
+                  type="password"
+                  value={loginForm.password}
+                />
+              </label>
+            </div>
+
+            <div className="button-row">
+              <button
+                className="action-button action-button-primary"
+                onClick={() => void handleLogin()}
+                type="button"
+              >
+                登录
+              </button>
+            </div>
+
+            <div className="admin-credentials">
+              <div className="tag-row">
+                <span className="tag">content-admin / portal-content-123</span>
+                <span className="tag">ops-admin / portal-ops-123</span>
+                <span className="tag">super-admin / portal-super-123</span>
+              </div>
+            </div>
+
+            {error ? <p className="admin-message admin-error">{error}</p> : null}
+            {notice ? <p className="admin-message admin-success">{notice}</p> : null}
+          </article>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="shell">
       <section className="hero-panel admin-hero">
@@ -186,7 +384,7 @@ export function AdminChannelPage() {
 
         <div className="hero-stat-card">
           <strong>{publishedCount}</strong>
-          <span>Published entries</span>
+          <span>{adminSession.user.display_name}</span>
         </div>
       </section>
 
@@ -198,6 +396,14 @@ export function AdminChannelPage() {
               <h2>管理范围</h2>
             </div>
             <span className="pill">{status}</span>
+          </div>
+
+          <div className="tag-row">
+            {adminSession.user.roles.map((role) => (
+              <span className="tag" key={role}>
+                {role}
+              </span>
+            ))}
           </div>
 
           <div className="form-grid">
@@ -240,6 +446,9 @@ export function AdminChannelPage() {
               type="button"
             >
               保存配置
+            </button>
+            <button className="action-button" onClick={() => void handleLogout()} type="button">
+              退出登录
             </button>
           </div>
 
@@ -408,7 +617,75 @@ export function AdminChannelPage() {
             ))}
           </div>
         </article>
+
+        <article className="panel panel-span-2">
+          <div className="panel-heading">
+            <div>
+              <p className="panel-kicker">Audit</p>
+              <h2>最近操作审计</h2>
+            </div>
+            <span className="pill">{auditEntries.length} entries</span>
+          </div>
+
+          {canViewAudit ? (
+            <div className="activity-list">
+              {auditEntries.map((entry) => (
+                <article className="activity-item tone-info" key={entry.audit_id}>
+                  <div className="activity-topline">
+                    <strong>{entry.summary}</strong>
+                    <span>{formatAuditTime(entry.created_at)}</span>
+                  </div>
+                  <p>
+                    {entry.action} · {entry.actor_username ?? "system"} · {entry.target_type}
+                  </p>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state compact">
+              <p>当前账号没有审计日志查看权限，使用 ops-admin 或 super-admin 可查看。</p>
+            </div>
+          )}
+        </article>
       </section>
     </main>
   );
+}
+
+function formatAuditTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleString("zh-CN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    month: "2-digit",
+    day: "2-digit"
+  });
+}
+
+function persistAdminToken(sessionToken: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.sessionStorage.setItem(ADMIN_SESSION_STORAGE_KEY, sessionToken);
+}
+
+function readStoredAdminToken() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window.sessionStorage.getItem(ADMIN_SESSION_STORAGE_KEY);
+}
+
+function clearStoredAdminToken() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.sessionStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
 }

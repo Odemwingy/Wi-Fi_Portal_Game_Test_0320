@@ -1,3 +1,4 @@
+export * from "./admin-auth";
 export * from "./bff";
 export * from "./channel-admin";
 export * from "./contracts";

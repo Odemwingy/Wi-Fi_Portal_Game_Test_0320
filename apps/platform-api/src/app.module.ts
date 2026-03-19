@@ -7,6 +7,10 @@ import {
 
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
+import { AdminAuditService } from "./admin-audit.service";
+import { AdminAuthController } from "./admin-auth.controller";
+import { AdminAuthGuard } from "./admin-auth.guard";
+import { AdminAuthService } from "./admin-auth.service";
 import { ChannelContentController } from "./channel-content.controller";
 import { ChannelContentService } from "./channel-content.service";
 import { MemoryMatchDuelAdapter } from "./game-adapters/memory-match-duel.adapter";
@@ -27,6 +31,14 @@ import {
   MemoryMatchDuelStateRepository,
   StateStoreMemoryMatchDuelStateRepository
 } from "./repositories/memory-match-duel-state.repository";
+import {
+  AdminAuditRepository,
+  StateStoreAdminAuditRepository
+} from "./repositories/admin-audit.repository";
+import {
+  AdminSessionRepository,
+  StateStoreAdminSessionRepository
+} from "./repositories/admin-session.repository";
 import {
   ChannelContentRepository,
   StateStoreChannelContentRepository
@@ -68,6 +80,7 @@ import { TraceMiddleware } from "./trace.middleware";
 
 @Module({
   controllers: [
+    AdminAuthController,
     AppController,
     ChannelContentController,
     RoomController,
@@ -76,6 +89,9 @@ import { TraceMiddleware } from "./trace.middleware";
   ],
   providers: [
     AppService,
+    AdminAuditService,
+    AdminAuthGuard,
+    AdminAuthService,
     ChannelContentService,
     PlatformDiagnosticsService,
     PointsService,
@@ -99,6 +115,14 @@ import { TraceMiddleware } from "./trace.middleware";
           ? new RedisJsonStateStore(config)
           : new InMemoryJsonStateStore();
       }
+    },
+    {
+      provide: AdminSessionRepository,
+      useClass: StateStoreAdminSessionRepository
+    },
+    {
+      provide: AdminAuditRepository,
+      useClass: StateStoreAdminAuditRepository
     },
     {
       provide: ChannelContentRepository,

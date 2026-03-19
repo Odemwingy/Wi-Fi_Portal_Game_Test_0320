@@ -71,6 +71,10 @@ The API container is wired to Redis by default and exposes:
 - `GET http://127.0.0.1:3000/api/health/ready`
 - `GET http://127.0.0.1:3000/api/metrics`
 - `GET|PUT http://127.0.0.1:3000/api/admin/channel/content`
+- `POST http://127.0.0.1:3000/api/admin/auth/login`
+- `GET  http://127.0.0.1:3000/api/admin/auth/me`
+- `POST http://127.0.0.1:3000/api/admin/auth/logout`
+- `GET  http://127.0.0.1:3000/api/admin/audit/logs`
 - `WS  http://127.0.0.1:3000/ws/game-room`
 
 The default environment template is [`.env.example`](./.env.example). The Redis container definition lives in [`docker-compose.yml`](./docker-compose.yml).
@@ -83,6 +87,14 @@ The default environment template is [`.env.example`](./.env.example). The Redis 
 - `packages/game-sdk` defines the integration contract for onboard game packages.
 - `packages/shared-observability` is created at project bootstrap time, per the observability wiki requirements.
 - `apps/platform-api` can now switch between in-memory state and Redis-backed state through `STATE_STORE_BACKEND`.
+
+## Demo Admin Accounts
+
+- `content-admin / portal-content-123`
+- `ops-admin / portal-ops-123`
+- `super-admin / portal-super-123`
+
+These are local demo credentials for the current implementation of `/admin/channel`. They should be replaced by a real identity source before production use.
 
 ## Observability and Rollback
 
