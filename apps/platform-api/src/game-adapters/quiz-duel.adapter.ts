@@ -161,6 +161,7 @@ export class QuizDuelAdapter implements GameAdapter {
     room.lastSeqByPlayer[playerId] = -1;
     room.scores[playerId] = room.scores[playerId] ?? 0;
     this.bumpRevision(room);
+    await this.stateRepository.set(roomId, room);
   }
 
   async handlePlayerAction(event: GameEventEnvelope) {
@@ -175,6 +176,7 @@ export class QuizDuelAdapter implements GameAdapter {
     if (room.answersByPlayer[event.playerId]) {
       room.lastSeqByPlayer[event.playerId] = event.seq;
       this.bumpRevision(room);
+      await this.stateRepository.set(event.roomId, room);
       return;
     }
 
@@ -193,10 +195,12 @@ export class QuizDuelAdapter implements GameAdapter {
 
     if (room.players.every((playerId) => room.answersByPlayer[playerId] !== null)) {
       this.completeRound(room);
+      await this.stateRepository.set(event.roomId, room);
       return;
     }
 
     this.bumpRevision(room);
+    await this.stateRepository.set(event.roomId, room);
   }
 
   async getSnapshot(roomId: string): Promise<GameStateSnapshot> {
@@ -244,6 +248,7 @@ export class QuizDuelAdapter implements GameAdapter {
       room.players.push(playerId);
     }
     this.bumpRevision(room);
+    await this.stateRepository.set(roomId, room);
   }
 
   async finishMatch(roomId: string) {

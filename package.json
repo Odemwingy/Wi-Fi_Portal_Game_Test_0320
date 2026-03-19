@@ -14,7 +14,8 @@
     "infra:redis:down": "docker compose stop redis",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:smoke": "node scripts/platform-smoke.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.23.0",
@@ -27,6 +28,7 @@
     "tsup": "^8.4.0",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.28.0",
-    "vitest": "^3.1.1"
+    "vitest": "^3.1.1",
+    "ws": "^8.18.3"
   }
 }

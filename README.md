@@ -31,6 +31,7 @@ pnpm infra:backend:up
 pnpm infra:backend:down
 pnpm infra:redis:up
 pnpm dev:api:redis
+pnpm test:smoke
 ```
 
 ## Local State Store Modes
@@ -88,3 +89,9 @@ The default environment template is [`.env.example`](./.env.example). The Redis 
 - `GET /api/health/ready` validates readiness against the configured state store backend.
 - `GET /api/metrics` exposes the current room count, websocket connections, HTTP QPS, and average websocket RTT.
 - Release and rollback steps are documented in [`docs/release-playbook.md`](./docs/release-playbook.md).
+
+## Test Baseline
+
+- `pnpm test` covers unit and integration cases.
+- `pnpm test:smoke` validates the Docker-backed API and websocket core flow against a running local stack.
+- Compatibility, weak-network, and release-gate expectations are documented in [`docs/test-strategy.md`](./docs/test-strategy.md).
