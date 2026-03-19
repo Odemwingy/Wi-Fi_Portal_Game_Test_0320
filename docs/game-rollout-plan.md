@@ -7,10 +7,11 @@
 - PRD 要求总计 `25` 款游戏，其中 `15` 款支持单机 + 联机对战，`10` 款为单机游戏。
 - 技术架构采用统一 `Game Channel + Game Platform + Game Packages`，联机仅考虑机上局域网内对战。
 - 首发目标不是一次性交付 25 款，而是先用 `2-5` 款代表性游戏跑通频道、启动器、房间、实时协议、积分与权益闭环。
-- 当前代码基线里已经有四款验证游戏：
+- 当前代码基线里已经有五款验证游戏：
   - `quiz-duel`：双人答题对战，已接入房间、WS、积分、独立 package 页面。
   - `cabin-puzzle`：单机拼图，已接入启动器与独立 package 页面。
   - `word-rally`：双人词汇回合对战，已接入房间、WS、积分与独立 package 页面。
+  - `memory-match-duel`：双人翻牌配对，已接入房间、WS、积分与独立 package 页面。
   - `runway-rush`：单机反应挑战，已接入启动器、积分与独立 package 页面。
 
 ## 2. 选型原则
@@ -40,7 +41,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `quiz-duel` | Quiz Duel | 答题竞赛 | 双人 turn-based | S | P0 | Wave A | 已实现 | 当前首个联机验证样例 |
 | `word-rally` | Word Rally | 单词接龙 | 双人 turn-based | M | P1 | Wave A | 已实现 | 复用邀请码、回合与胜负结算 |
-| `memory-match-duel` | Memory Match Duel | 翻牌记忆 | 双人回合同步 | S | P1 | Wave A | 规划中 | 与 `cabin-puzzle` 视觉资产可共用 |
+| `memory-match-duel` | Memory Match Duel | 翻牌记忆 | 双人回合同步 | S | P1 | Wave A | 已实现 | 与 `cabin-puzzle` 视觉资产可共用 |
 | `spot-the-difference-race` | Spot the Difference Race | 找不同竞速 | 双人低频同步 | M | P1 | Wave A | 规划中 | 可单机计时，也可双人抢答 |
 | `mini-gomoku` | Mini Gomoku | 五子棋轻量版 | 双人 turn-based | S | P1 | Wave A | 规划中 | 规则稳定，服务端状态简单 |
 | `seat-map-strategy` | Seat Map Strategy | 占格策略 | 双人 turn-based | M | P1 | Wave B | 规划中 | 适合积分与排行榜 |
@@ -176,7 +177,7 @@
 
 ## 7. 当前建议的 backlog 对齐关系
 
-- `#29` 对齐 Wave A 当前已落地部分：`quiz-duel`、`cabin-puzzle`、`word-rally`、`runway-rush`
+- `#29` 对齐 Wave A 当前已落地部分：`quiz-duel`、`cabin-puzzle`、`word-rally`、`memory-match-duel`、`runway-rush`
 - `#10` 对齐频道分类、推荐位和内容展示能力
 - `#11/#12` 对齐联机类游戏底座
 - `#13/#16/#17` 对齐积分、排行榜、配置化运营
@@ -184,6 +185,6 @@
 
 ## 8. 下一步执行建议
 
-1. 先把 Wave A 剩余未落地的 `1` 款 `memory-match-duel` 拆成独立 issue，并同步补一个 `spot-the-difference-race` 作为 Wave B 预研项。
+1. Wave A 的 5 款验证游戏已经全部落地，下一步直接进入 `spot-the-difference-race` 的 Wave B 预研和后台配置能力补齐。
 2. 在后台配置能力落地前，先用静态 catalog 驱动首发内容，避免卡住 package 接入节奏。
 3. 所有新游戏必须先过 `single-player` 或 `multiplayer` 接入模板，不允许临时特判。

@@ -7,6 +7,7 @@ import {
 
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
+import { MemoryMatchDuelAdapter } from "./game-adapters/memory-match-duel.adapter";
 import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
 import { WordRallyAdapter } from "./game-adapters/word-rally.adapter";
 import { GameRuntimeService } from "./game-runtime.service";
@@ -19,6 +20,10 @@ import { PointsController } from "./points.controller";
 import { PointsService } from "./points.service";
 import { RewardsController } from "./rewards.controller";
 import { RewardsService } from "./rewards.service";
+import {
+  MemoryMatchDuelStateRepository,
+  StateStoreMemoryMatchDuelStateRepository
+} from "./repositories/memory-match-duel-state.repository";
 import {
   InMemoryJsonStateStore,
   JsonStateStore,
@@ -59,6 +64,7 @@ import { TraceMiddleware } from "./trace.middleware";
     RewardsService,
     RoomService,
     GameRuntimeService,
+    MemoryMatchDuelAdapter,
     QuizDuelAdapter,
     WordRallyAdapter,
     TraceMiddleware,
@@ -82,6 +88,10 @@ import { TraceMiddleware } from "./trace.middleware";
     {
       provide: QuizDuelStateRepository,
       useClass: StateStoreQuizDuelStateRepository
+    },
+    {
+      provide: MemoryMatchDuelStateRepository,
+      useClass: StateStoreMemoryMatchDuelStateRepository
     },
     {
       provide: PointsRepository,

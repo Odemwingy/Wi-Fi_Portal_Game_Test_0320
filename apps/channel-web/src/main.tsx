@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 
 import { App } from "./App";
 import { CabinPuzzlePackagePage } from "./CabinPuzzlePackagePage";
+import { MemoryMatchDuelPackagePage } from "./MemoryMatchDuelPackagePage";
 import { QuizDuelPackagePage } from "./QuizDuelPackagePage";
 import { RunwayRushPackagePage } from "./RunwayRushPackagePage";
 import { WordRallyPackagePage } from "./WordRallyPackagePage";
@@ -14,6 +15,8 @@ const RootComponent =
     ? QuizDuelPackagePage
     : pathname === "/games/cabin-puzzle"
       ? CabinPuzzlePackagePage
+      : pathname === "/games/memory-match-duel"
+        ? MemoryMatchDuelPackagePage
       : pathname === "/games/runway-rush"
         ? RunwayRushPackagePage
       : pathname === "/games/word-rally"

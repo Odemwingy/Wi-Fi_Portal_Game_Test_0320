@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { startTrace } from "@wifi-portal/shared-observability";
 
+import { MemoryMatchDuelAdapter } from "./game-adapters/memory-match-duel.adapter";
 import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
 import { WordRallyAdapter } from "./game-adapters/word-rally.adapter";
 import { GameRuntimeService } from "./game-runtime.service";
 import { InMemoryJsonStateStore } from "./repositories/json-state-store";
+import { StateStoreMemoryMatchDuelStateRepository } from "./repositories/memory-match-duel-state.repository";
 import { StateStoreQuizDuelStateRepository } from "./repositories/quiz-duel-state.repository";
 import { StateStoreRoomRepository } from "./repositories/room.repository";
 import { StateStoreWordRallyStateRepository } from "./repositories/word-rally-state.repository";
@@ -17,6 +19,9 @@ describe("GameRuntimeService", () => {
     const roomService = new RoomService(new StateStoreRoomRepository(stateStore));
     const runtime = new GameRuntimeService(
       roomService,
+      new MemoryMatchDuelAdapter(
+        new StateStoreMemoryMatchDuelStateRepository(stateStore)
+      ),
       new QuizDuelAdapter(new StateStoreQuizDuelStateRepository(stateStore)),
       new WordRallyAdapter(new StateStoreWordRallyStateRepository(stateStore))
     );
@@ -198,6 +203,9 @@ describe("GameRuntimeService", () => {
     const roomService = new RoomService(new StateStoreRoomRepository(stateStore));
     const runtime = new GameRuntimeService(
       roomService,
+      new MemoryMatchDuelAdapter(
+        new StateStoreMemoryMatchDuelStateRepository(stateStore)
+      ),
       new QuizDuelAdapter(new StateStoreQuizDuelStateRepository(stateStore)),
       new WordRallyAdapter(new StateStoreWordRallyStateRepository(stateStore))
     );
@@ -242,6 +250,74 @@ describe("GameRuntimeService", () => {
       "host-1": 0,
       "player-2": 10
     });
+
+    runtime.onModuleDestroy();
+  });
+
+  it("supports memory-match-duel rooms with shared board state", async () => {
+    const stateStore = new InMemoryJsonStateStore();
+    const roomService = new RoomService(new StateStoreRoomRepository(stateStore));
+    const runtime = new GameRuntimeService(
+      roomService,
+      new MemoryMatchDuelAdapter(
+        new StateStoreMemoryMatchDuelStateRepository(stateStore)
+      ),
+      new QuizDuelAdapter(new StateStoreQuizDuelStateRepository(stateStore)),
+      new WordRallyAdapter(new StateStoreWordRallyStateRepository(stateStore))
+    );
+    const trace = startTrace();
+
+    const created = await roomService.createRoom(trace, {
+      game_id: "memory-match-duel",
+      host_player_id: "host-1",
+      host_session_id: "sess-host-1",
+      max_players: 2,
+      room_name: "Memory Match Room"
+    });
+
+    await roomService.joinRoom(trace, {
+      player_id: "player-2",
+      room_id: created.room.room_id,
+      session_id: "sess-player-2"
+    });
+
+    const initialSnapshot = await runtime.getGameSnapshot(
+      trace,
+      "memory-match-duel",
+      created.room.room_id
+    );
+
+    expect(initialSnapshot?.state.current_turn_player_id).toBe("host-1");
+    expect(initialSnapshot?.state.total_pairs).toBe(3);
+
+    await runtime.handleGameEvent(trace, {
+      gameId: "memory-match-duel",
+      payload: {
+        cardIndex: 0
+      },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 1,
+      type: "game_event"
+    });
+
+    const resolvedSnapshot = await runtime.handleGameEvent(trace, {
+      gameId: "memory-match-duel",
+      payload: {
+        cardIndex: 2
+      },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 2,
+      type: "game_event"
+    });
+
+    expect(resolvedSnapshot?.state.matched_pair_count).toBe(1);
+    expect(resolvedSnapshot?.state.scores).toEqual({
+      "host-1": 12,
+      "player-2": 0
+    });
+    expect(resolvedSnapshot?.state.winning_player_ids).toEqual(["host-1"]);
 
     runtime.onModuleDestroy();
   });

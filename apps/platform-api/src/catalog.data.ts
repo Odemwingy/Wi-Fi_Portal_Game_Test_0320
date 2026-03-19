@@ -83,6 +83,31 @@ const packageMetadata = [
     }
   }),
   gamePackageMetadataSchema.parse({
+    id: "memory-match-duel",
+    name: "Memory Match Duel",
+    version: "1.0.0",
+    frontend: {
+      route: "/games/memory-match-duel",
+      assetsPath: "/opt/games/memory-match-duel/frontend"
+    },
+    server: {
+      image: "registry.local/memory-match-duel-server:1.0.0",
+      port: 8092
+    },
+    realtime: {
+      protocol: "websocket"
+    },
+    dependencies: ["redis"],
+    capabilities: ["multiplayer", "leaderboard", "invite-code", "points-reporting"],
+    healthcheck: {
+      path: "/health"
+    },
+    observability: {
+      emitsStructuredLogs: true,
+      supportsTraceContext: true
+    }
+  }),
+  gamePackageMetadataSchema.parse({
     id: "runway-rush",
     name: "Runway Rush",
     version: "1.0.0",
@@ -119,6 +144,8 @@ export const buildChannelCatalog = (): ChannelCatalogEntry[] =>
           ? "Fast head-to-head quiz battles for onboard LAN play."
           : metadata.id === "word-rally"
             ? "Letter-based multiplayer word rounds designed for invite-code matches."
+            : metadata.id === "memory-match-duel"
+              ? "Turn-based memory flips with shared board state and invite-room play."
             : metadata.id === "runway-rush"
               ? "Short reaction rounds for passengers who want a quick solo score chase."
             : "Single-player puzzle loops optimized for short sessions.",
@@ -128,6 +155,8 @@ export const buildChannelCatalog = (): ChannelCatalogEntry[] =>
           ? ["Multiplayer", "Trivia", "Featured"]
           : metadata.id === "word-rally"
             ? ["Multiplayer", "Word", "Featured"]
+            : metadata.id === "memory-match-duel"
+              ? ["Multiplayer", "Memory", "Featured"]
             : metadata.id === "runway-rush"
               ? ["Single Player", "Reaction", "Featured"]
             : ["Single Player", "Puzzle", "Relaxed"],

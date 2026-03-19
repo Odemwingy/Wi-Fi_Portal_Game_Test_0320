@@ -9,11 +9,13 @@ import { startTrace } from "@wifi-portal/shared-observability";
 import { afterEach, describe, expect, it } from "vitest";
 import { WebSocket } from "ws";
 
+import { MemoryMatchDuelAdapter } from "./game-adapters/memory-match-duel.adapter";
 import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
 import { WordRallyAdapter } from "./game-adapters/word-rally.adapter";
 import { GameRuntimeService } from "./game-runtime.service";
 import { PlatformMetricsService } from "./platform-metrics.service";
 import { InMemoryJsonStateStore } from "./repositories/json-state-store";
+import { StateStoreMemoryMatchDuelStateRepository } from "./repositories/memory-match-duel-state.repository";
 import { StateStoreQuizDuelStateRepository } from "./repositories/quiz-duel-state.repository";
 import { StateStoreRoomRepository } from "./repositories/room.repository";
 import { StateStoreWordRallyStateRepository } from "./repositories/word-rally-state.repository";
@@ -207,6 +209,9 @@ async function createRealtimeFixture(
   const roomService = new RoomService(new StateStoreRoomRepository(stateStore));
   const runtime = new GameRuntimeService(
     roomService,
+    new MemoryMatchDuelAdapter(
+      new StateStoreMemoryMatchDuelStateRepository(stateStore)
+    ),
     new QuizDuelAdapter(new StateStoreQuizDuelStateRepository(stateStore)),
     new WordRallyAdapter(new StateStoreWordRallyStateRepository(stateStore))
   );

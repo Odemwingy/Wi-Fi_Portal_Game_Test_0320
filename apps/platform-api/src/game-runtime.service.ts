@@ -13,6 +13,7 @@ import {
   type TraceContext
 } from "@wifi-portal/shared-observability";
 
+import { MemoryMatchDuelAdapter } from "./game-adapters/memory-match-duel.adapter";
 import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
 import { WordRallyAdapter } from "./game-adapters/word-rally.adapter";
 import { RoomService, type RoomSubscriptionEvent } from "./room.service";
@@ -29,12 +30,15 @@ export class GameRuntimeService implements OnModuleDestroy {
   constructor(
     @Inject(RoomService)
     private readonly roomService: RoomService,
+    @Inject(MemoryMatchDuelAdapter)
+    memoryMatchDuelAdapter: MemoryMatchDuelAdapter,
     @Inject(QuizDuelAdapter)
     quizDuelAdapter: QuizDuelAdapter,
     @Inject(WordRallyAdapter)
     wordRallyAdapter: WordRallyAdapter
   ) {
     this.adapters = createGameAdapterRegistry([
+      memoryMatchDuelAdapter,
       quizDuelAdapter,
       wordRallyAdapter
     ] satisfies readonly GameAdapter[]);
