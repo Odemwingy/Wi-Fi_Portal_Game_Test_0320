@@ -113,6 +113,163 @@ const closeSocket = (socket) =>
     socket.close()
   })
 
+const runSpotTheDifferenceSmoke = async ({
+  guestBootstrap,
+  hostBootstrap
+}) => {
+  logStep("creating spot-the-difference-race room")
+  const created = await requestJson("/api/lobby/create-room", {
+    body: {
+      game_id: "spot-the-difference-race",
+      host_player_id: hostBootstrap.session.passengerId,
+      host_session_id: hostBootstrap.session.sessionId,
+      max_players: 2,
+      room_name: `Spot Race Room ${uniqueSuffix}`
+    },
+    method: "POST"
+  })
+
+  await requestJson("/api/lobby/join-by-invite", {
+    body: {
+      invite_code: created.room.invite_code,
+      player_id: guestBootstrap.session.passengerId,
+      session_id: guestBootstrap.session.sessionId
+    },
+    method: "POST"
+  })
+
+  const hostClient = createRealtimeClient({
+    playerId: hostBootstrap.session.passengerId,
+    roomId: created.room.room_id,
+    sessionId: hostBootstrap.session.sessionId,
+    traceId: `trace-spot-host-${uniqueSuffix}`
+  })
+  const guestClient = createRealtimeClient({
+    playerId: guestBootstrap.session.passengerId,
+    roomId: created.room.room_id,
+    sessionId: guestBootstrap.session.sessionId,
+    traceId: `trace-spot-guest-${uniqueSuffix}`
+  })
+
+  try {
+    await Promise.all([waitForOpen(hostClient.socket), waitForOpen(guestClient.socket)])
+    await Promise.all([
+      waitForMessage(hostClient, (message) => message.type === "room_snapshot"),
+      waitForMessage(guestClient, (message) => message.type === "room_snapshot"),
+      waitForMessage(
+        hostClient,
+        (message) =>
+          message.type === "game_state"
+          && message.payload.gameId === "spot-the-difference-race"
+      ),
+      waitForMessage(
+        guestClient,
+        (message) =>
+          message.type === "game_state"
+          && message.payload.gameId === "spot-the-difference-race"
+      )
+    ])
+    logStep("spot-the-difference-race initial websocket snapshots passed")
+
+    hostClient.socket.send(
+      JSON.stringify({
+        message_id: `spot-race-msg-${uniqueSuffix}`,
+        payload: {
+          gameId: "spot-the-difference-race",
+          payload: {
+            spotId: "window-shade-01"
+          },
+          playerId: hostBootstrap.session.passengerId,
+          roomId: created.room.room_id,
+          seq: 1,
+          type: "game_event"
+        },
+        type: "game_event"
+      })
+    )
+
+    await Promise.all([
+      waitForMessage(
+        hostClient,
+        (message) =>
+          message.type === "ack"
+          && message.correlation_id === `spot-race-msg-${uniqueSuffix}`
+          && message.payload.acked_type === "game_event"
+      ),
+      waitForMessage(
+        guestClient,
+        (message) =>
+          message.type === "game_state"
+          && message.correlation_id === `spot-race-msg-${uniqueSuffix}`
+          && message.payload.state.found_spots["window-shade-01"]?.playerId
+            === hostBootstrap.session.passengerId
+      )
+    ])
+    logStep("spot-the-difference-race claim relay passed")
+
+    guestClient.socket.close()
+
+    await waitForMessage(
+      hostClient,
+      (message) =>
+        message.type === "room_snapshot"
+        && message.payload.players.some(
+          (player) =>
+            player.player_id === guestBootstrap.session.passengerId
+            && player.connection_status === "disconnected"
+        )
+    )
+    logStep("spot-the-difference-race disconnect snapshot passed")
+
+    await requestJson("/api/lobby/reconnect", {
+      body: {
+        player_id: guestBootstrap.session.passengerId,
+        room_id: created.room.room_id,
+        session_id: guestBootstrap.session.sessionId
+      },
+      method: "POST"
+    })
+
+    const guestReconnectClient = createRealtimeClient({
+      playerId: guestBootstrap.session.passengerId,
+      roomId: created.room.room_id,
+      sessionId: guestBootstrap.session.sessionId,
+      traceId: `trace-spot-guest-reconnect-${uniqueSuffix}`
+    })
+
+    try {
+      await waitForOpen(guestReconnectClient.socket)
+      await waitForMessage(
+        guestReconnectClient,
+        (message) =>
+          message.type === "room_snapshot"
+          && message.payload.players.some(
+            (player) =>
+              player.player_id === guestBootstrap.session.passengerId
+              && player.connection_status === "connected"
+          )
+      )
+      await waitForMessage(
+        guestReconnectClient,
+        (message) =>
+          message.type === "game_state"
+          && message.payload.gameId === "spot-the-difference-race"
+          && message.payload.state.found_spots["window-shade-01"]?.playerId
+            === hostBootstrap.session.passengerId
+          && message.payload.state.claimed_spot_count === 1
+      )
+      logStep("spot-the-difference-race reconnect state restore passed")
+    } finally {
+      await closeSocket(guestReconnectClient.socket)
+    }
+  } finally {
+    await Promise.allSettled([
+      closeSocket(hostClient.socket),
+      closeSocket(guestClient.socket)
+    ])
+  }
+}
+
 const run = async () => {
   logStep(`target ${platformBaseUrl}`)
 
@@ -313,6 +470,10 @@ const run = async () => {
     assert.ok(finalMetrics.http.path_counts["GET /api/health"] >= 1)
 
     logStep("final metrics passed")
+    await runSpotTheDifferenceSmoke({
+      guestBootstrap,
+      hostBootstrap
+    })
     console.log("Smoke checks passed.")
   } finally {
     await Promise.allSettled([

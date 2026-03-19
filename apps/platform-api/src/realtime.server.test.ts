@@ -201,11 +201,100 @@ describe("RealtimeServer", () => {
       )?.connection_status
     ).toBe("disconnected");
   });
+
+  it("restores spot-the-difference-race scene state after reconnect", async () => {
+    const { roomId, server } = await createRealtimeFixture(sockets, closers, {
+      gameId: "spot-the-difference-race"
+    });
+
+    const hostSocket = createSocket(server, roomId, "host-1", "sess-host-1");
+    const guestSocket = createSocket(server, roomId, "player-2", "sess-player-2");
+    sockets.add(hostSocket);
+    sockets.add(guestSocket);
+
+    await Promise.all([
+      waitForOpen(hostSocket.socket),
+      waitForOpen(guestSocket.socket)
+    ]);
+    await Promise.all([
+      waitForMessage(hostSocket, (message) => message.type === "room_snapshot"),
+      waitForMessage(guestSocket, (message) => message.type === "room_snapshot"),
+      waitForMessage(hostSocket, (message) => message.type === "game_state"),
+      waitForMessage(guestSocket, (message) => message.type === "game_state")
+    ]);
+
+    hostSocket.socket.send(
+      JSON.stringify({
+        message_id: "spot-race-msg-1",
+        payload: {
+          gameId: "spot-the-difference-race",
+          payload: {
+            spotId: "window-shade-01"
+          },
+          playerId: "host-1",
+          roomId,
+          seq: 1,
+          type: "game_event"
+        },
+        type: "game_event"
+      })
+    );
+
+    await waitForMessage(
+      guestSocket,
+      (message) =>
+        message.type === "game_state" &&
+        message.correlation_id === "spot-race-msg-1" &&
+        message.payload.state.found_spots["window-shade-01"]?.playerId === "host-1"
+    );
+
+    guestSocket.socket.close();
+
+    await waitForMessage(
+      hostSocket,
+      (message) =>
+        message.type === "room_snapshot" &&
+        message.payload.players.some(
+          (player) =>
+            player.player_id === "player-2" &&
+            player.connection_status === "disconnected"
+        )
+    );
+
+    const guestReconnectSocket = createSocket(
+      server,
+      roomId,
+      "player-2",
+      "sess-player-2"
+    );
+    sockets.add(guestReconnectSocket);
+
+    await waitForOpen(guestReconnectSocket.socket);
+
+    const restoredState = await waitForMessage(
+      guestReconnectSocket,
+      (message) =>
+        message.type === "game_state" &&
+        message.payload.gameId === "spot-the-difference-race" &&
+        message.payload.state.found_spots["window-shade-01"]?.playerId === "host-1"
+    );
+
+    expect(restoredState.type).toBe("game_state");
+    expect(restoredState.payload.state.claimed_spot_count).toBe(1);
+    expect(restoredState.payload.state.current_scene_id).toBe("cabin-window-evening");
+    expect(restoredState.payload.state.scores).toEqual({
+      "host-1": 8,
+      "player-2": 0
+    });
+  });
 });
 
 async function createRealtimeFixture(
   sockets: Set<TestSocket>,
-  closers: Array<() => Promise<void> | void>
+  closers: Array<() => Promise<void> | void>,
+  options?: {
+    gameId?: "memory-match-duel" | "quiz-duel" | "spot-the-difference-race" | "word-rally";
+  }
 ) {
   const stateStore = new InMemoryJsonStateStore();
   const roomService = new RoomService(new StateStoreRoomRepository(stateStore));
@@ -222,8 +311,9 @@ async function createRealtimeFixture(
   );
   const metrics = new PlatformMetricsService();
   const trace = startTrace();
+  const gameId = options?.gameId ?? "quiz-duel";
   const created = await roomService.createRoom(trace, {
-    game_id: "quiz-duel",
+    game_id: gameId,
     host_player_id: "host-1",
     host_session_id: "sess-host-1",
     max_players: 2,
