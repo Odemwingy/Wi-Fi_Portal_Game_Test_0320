@@ -42,7 +42,7 @@
 | `quiz-duel` | Quiz Duel | 答题竞赛 | 双人 turn-based | S | P0 | Wave A | 已实现 | 当前首个联机验证样例 |
 | `word-rally` | Word Rally | 单词接龙 | 双人 turn-based | M | P1 | Wave A | 已实现 | 复用邀请码、回合与胜负结算 |
 | `memory-match-duel` | Memory Match Duel | 翻牌记忆 | 双人回合同步 | S | P1 | Wave A | 已实现 | 与 `cabin-puzzle` 视觉资产可共用 |
-| `spot-the-difference-race` | Spot the Difference Race | 找不同竞速 | 双人低频同步 | M | P1 | Wave A | 规划中 | 可单机计时，也可双人抢答 |
+| `spot-the-difference-race` | Spot the Difference Race | 找不同竞速 | 双人低频同步 | M | P1 | Wave A | 已预研 | 可单机计时，也可双人抢答 |
 | `mini-gomoku` | Mini Gomoku | 五子棋轻量版 | 双人 turn-based | S | P1 | Wave A | 规划中 | 规则稳定，服务端状态简单 |
 | `seat-map-strategy` | Seat Map Strategy | 占格策略 | 双人 turn-based | M | P1 | Wave B | 规划中 | 适合积分与排行榜 |
 | `signal-scramble` | Signal Scramble | 图案连线 | 双人异步竞速 | M | P1 | Wave B | 规划中 | 可比较完成时间和得分 |
