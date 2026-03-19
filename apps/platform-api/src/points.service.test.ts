@@ -9,12 +9,17 @@ import {
   LegacyBatchAirlinePointsAdapter,
   MockHttpAirlinePointsAdapter
 } from "./airline-points.adapter";
+import { GameEventsService } from "./game-events.service";
 import { PointsService } from "./points.service";
 import { PointsRulesService } from "./points-rules.service";
 import {
   AirlinePointsConfigRepository,
   StateStoreAirlinePointsConfigRepository
 } from "./repositories/airline-points-config.repository";
+import {
+  GameEventsRepository,
+  StateStoreGameEventsRepository
+} from "./repositories/game-events.repository";
 import {
   AirlinePointsSyncRepository,
   StateStoreAirlinePointsSyncRepository
@@ -38,11 +43,19 @@ describe("PointsService", () => {
       new StateStorePointsRuleConfigRepository(stateStore);
     const pointsAuditRepository: PointsAuditRepository =
       new StateStorePointsAuditRepository(stateStore);
+    const gameEventsRepository: GameEventsRepository =
+      new StateStoreGameEventsRepository(stateStore);
+    const gameEventsService = new GameEventsService(gameEventsRepository);
     const pointsRulesService = new PointsRulesService(
       pointsRuleConfigRepository,
       pointsAuditRepository
     );
-    const service = new PointsService(repository, pointsRulesService);
+    const service = new PointsService(
+      repository,
+      pointsRulesService,
+      undefined,
+      gameEventsService
+    );
     const trace = startTrace();
 
     const firstReport = await service.reportPoints(trace, {
@@ -103,6 +116,16 @@ describe("PointsService", () => {
     const summary = await service.getPassengerSummary(trace, "passenger-1");
     expect(summary.total_points).toBe(38);
     expect(summary.latest_reports).toHaveLength(2);
+
+    const events = await gameEventsService.listEvents(trace, {
+      passenger_id: "passenger-1"
+    });
+    expect(events.entries.map((entry) => entry.event_id)).toEqual([
+      "points:report-puzzle-1:score",
+      "points:report-puzzle-1:game_end",
+      "points:report-quiz-1:score",
+      "points:report-quiz-1:game_end"
+    ]);
   });
 
   it("builds a leaderboard ordered by total points and capped by limit", async () => {
@@ -112,11 +135,19 @@ describe("PointsService", () => {
       new StateStorePointsRuleConfigRepository(stateStore);
     const pointsAuditRepository: PointsAuditRepository =
       new StateStorePointsAuditRepository(stateStore);
+    const gameEventsRepository: GameEventsRepository =
+      new StateStoreGameEventsRepository(stateStore);
+    const gameEventsService = new GameEventsService(gameEventsRepository);
     const pointsRulesService = new PointsRulesService(
       pointsRuleConfigRepository,
       pointsAuditRepository
     );
-    const service = new PointsService(repository, pointsRulesService);
+    const service = new PointsService(
+      repository,
+      pointsRulesService,
+      undefined,
+      gameEventsService
+    );
     const trace = startTrace();
 
     await service.reportPoints(trace, {
@@ -187,6 +218,9 @@ describe("PointsService", () => {
       new StateStorePointsRuleConfigRepository(stateStore);
     const pointsAuditRepository: PointsAuditRepository =
       new StateStorePointsAuditRepository(stateStore);
+    const gameEventsRepository: GameEventsRepository =
+      new StateStoreGameEventsRepository(stateStore);
+    const gameEventsService = new GameEventsService(gameEventsRepository);
     const pointsRulesService = new PointsRulesService(
       pointsRuleConfigRepository,
       pointsAuditRepository
@@ -194,7 +228,8 @@ describe("PointsService", () => {
     const service = new PointsService(
       repository,
       pointsRulesService,
-      airlinePointsService
+      airlinePointsService,
+      gameEventsService
     );
     const trace = startTrace();
 

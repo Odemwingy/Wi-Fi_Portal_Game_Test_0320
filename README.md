@@ -81,6 +81,9 @@ The API container is wired to Redis by default and exposes:
 - `GET  http://127.0.0.1:3000/api/admin/airline-points/sync-records`
 - `POST http://127.0.0.1:3000/api/admin/airline-points/dispatch-pending`
 - `POST http://127.0.0.1:3000/api/admin/airline-points/sync-records/:syncId/retry`
+- `POST http://127.0.0.1:3000/api/events/report`
+- `GET  http://127.0.0.1:3000/api/events`
+- `GET  http://127.0.0.1:3000/api/events/leaderboard`
 - `WS  http://127.0.0.1:3000/ws/game-room`
 
 The default environment template is [`.env.example`](./.env.example). The Redis container definition lives in [`docker-compose.yml`](./docker-compose.yml).
@@ -93,6 +96,7 @@ The default environment template is [`.env.example`](./.env.example). The Redis 
 - `apps/platform-api` is the initial Game Platform service shell.
 - `apps/platform-api` now includes a configurable airline points sync outbox with realtime and batch dispatch modes.
 - `apps/platform-api` now includes a configurable points rules engine with audit ledger and per-game rule sets.
+- `apps/platform-api` now includes a standard game events ledger with unified event ingestion and event-derived leaderboards.
 - `packages/game-sdk` defines the integration contract for onboard game packages.
 - `packages/shared-observability` is created at project bootstrap time, per the observability wiki requirements.
 - `apps/platform-api` can now switch between in-memory state and Redis-backed state through `STATE_STORE_BACKEND`.

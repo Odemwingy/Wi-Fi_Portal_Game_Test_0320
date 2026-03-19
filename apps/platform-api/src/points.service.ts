@@ -29,6 +29,7 @@ import {
   PointsRepository
 } from "./repositories/points.repository";
 import { AirlinePointsService } from "./airline-points.service";
+import { GameEventsService } from "./game-events.service";
 import { PointsRulesService } from "./points-rules.service";
 
 const logger = createStructuredLogger("platform-api.points");
@@ -42,7 +43,10 @@ export class PointsService {
     private readonly pointsRulesService: PointsRulesService,
     @Optional()
     @Inject(AirlinePointsService)
-    private readonly airlinePointsService?: AirlinePointsService
+    private readonly airlinePointsService?: AirlinePointsService,
+    @Optional()
+    @Inject(GameEventsService)
+    private readonly gameEventsService?: GameEventsService
   ) {}
 
   async getPassengerSummary(
@@ -140,6 +144,11 @@ export class PointsService {
     const storedSummary = await this.pointsRepository.set(
       parsedPayload.passenger_id,
       nextSummary
+    );
+    await this.gameEventsService?.recordPointsReportEvents(
+      span,
+      awardedReport,
+      evaluation.event_type
     );
     const airlineSync = await this.airlinePointsService?.syncReportedPoints(
       span,

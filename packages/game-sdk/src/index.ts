@@ -3,6 +3,7 @@ export * from "./airline-points";
 export * from "./bff";
 export * from "./channel-admin";
 export * from "./contracts";
+export * from "./game-events";
 export * from "./metadata";
 export * from "./multiplayer";
 export * from "./points";

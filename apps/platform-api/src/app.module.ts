@@ -26,7 +26,13 @@ import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
 import { SpotTheDifferenceRaceAdapter } from "./game-adapters/spot-the-difference-race.adapter";
 import { WordRallyAdapter } from "./game-adapters/word-rally.adapter";
 import { GameRuntimeService } from "./game-runtime.service";
+import { GameEventsController } from "./game-events.controller";
+import { GameEventsService } from "./game-events.service";
 import { PlatformDiagnosticsService } from "./platform-diagnostics.service";
+import {
+  GameEventsRepository,
+  StateStoreGameEventsRepository
+} from "./repositories/game-events.repository";
 import {
   PlatformMetricsService,
   sharedPlatformMetricsService
@@ -110,6 +116,7 @@ import { TraceMiddleware } from "./trace.middleware";
     AirlinePointsController,
     AppController,
     ChannelContentController,
+    GameEventsController,
     PointsRulesController,
     RoomController,
     PointsController,
@@ -122,6 +129,7 @@ import { TraceMiddleware } from "./trace.middleware";
     AdminAuthService,
     AirlinePointsService,
     ChannelContentService,
+    GameEventsService,
     LegacyBatchAirlinePointsAdapter,
     MockHttpAirlinePointsAdapter,
     PlatformDiagnosticsService,
@@ -147,6 +155,10 @@ import { TraceMiddleware } from "./trace.middleware";
           ? new RedisJsonStateStore(config)
           : new InMemoryJsonStateStore();
       }
+    },
+    {
+      provide: GameEventsRepository,
+      useClass: StateStoreGameEventsRepository
     },
     {
       provide: AdminSessionRepository,
