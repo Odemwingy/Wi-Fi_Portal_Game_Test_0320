@@ -8,6 +8,7 @@ import {
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
+import { WordRallyAdapter } from "./game-adapters/word-rally.adapter";
 import { GameRuntimeService } from "./game-runtime.service";
 import { PlatformDiagnosticsService } from "./platform-diagnostics.service";
 import {
@@ -39,6 +40,10 @@ import {
   StateStoreQuizDuelStateRepository,
   QuizDuelStateRepository
 } from "./repositories/quiz-duel-state.repository";
+import {
+  StateStoreWordRallyStateRepository,
+  WordRallyStateRepository
+} from "./repositories/word-rally-state.repository";
 import { StateStoreRoomRepository, RoomRepository } from "./repositories/room.repository";
 import { loadStateStoreConfig } from "./repositories/state-store.config";
 import { RoomController } from "./room.controller";
@@ -55,6 +60,7 @@ import { TraceMiddleware } from "./trace.middleware";
     RoomService,
     GameRuntimeService,
     QuizDuelAdapter,
+    WordRallyAdapter,
     TraceMiddleware,
     {
       provide: PlatformMetricsService,
@@ -80,6 +86,10 @@ import { TraceMiddleware } from "./trace.middleware";
     {
       provide: PointsRepository,
       useClass: StateStorePointsRepository
+    },
+    {
+      provide: WordRallyStateRepository,
+      useClass: StateStoreWordRallyStateRepository
     },
     {
       provide: RewardsRepository,

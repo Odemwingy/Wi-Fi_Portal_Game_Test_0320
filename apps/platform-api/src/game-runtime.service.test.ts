@@ -3,10 +3,12 @@ import { describe, expect, it } from "vitest";
 import { startTrace } from "@wifi-portal/shared-observability";
 
 import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
+import { WordRallyAdapter } from "./game-adapters/word-rally.adapter";
 import { GameRuntimeService } from "./game-runtime.service";
 import { InMemoryJsonStateStore } from "./repositories/json-state-store";
 import { StateStoreQuizDuelStateRepository } from "./repositories/quiz-duel-state.repository";
 import { StateStoreRoomRepository } from "./repositories/room.repository";
+import { StateStoreWordRallyStateRepository } from "./repositories/word-rally-state.repository";
 import { RoomService } from "./room.service";
 
 describe("GameRuntimeService", () => {
@@ -15,7 +17,8 @@ describe("GameRuntimeService", () => {
     const roomService = new RoomService(new StateStoreRoomRepository(stateStore));
     const runtime = new GameRuntimeService(
       roomService,
-      new QuizDuelAdapter(new StateStoreQuizDuelStateRepository(stateStore))
+      new QuizDuelAdapter(new StateStoreQuizDuelStateRepository(stateStore)),
+      new WordRallyAdapter(new StateStoreWordRallyStateRepository(stateStore))
     );
     const trace = startTrace();
 
@@ -186,6 +189,59 @@ describe("GameRuntimeService", () => {
       "player-2": 10
     });
     expect(finalSnapshot?.state.winning_player_ids).toEqual(["host-1"]);
+
+    runtime.onModuleDestroy();
+  });
+
+  it("supports a second multiplayer adapter for word-rally rooms", async () => {
+    const stateStore = new InMemoryJsonStateStore();
+    const roomService = new RoomService(new StateStoreRoomRepository(stateStore));
+    const runtime = new GameRuntimeService(
+      roomService,
+      new QuizDuelAdapter(new StateStoreQuizDuelStateRepository(stateStore)),
+      new WordRallyAdapter(new StateStoreWordRallyStateRepository(stateStore))
+    );
+    const trace = startTrace();
+
+    const created = await roomService.createRoom(trace, {
+      game_id: "word-rally",
+      host_player_id: "host-1",
+      host_session_id: "sess-host-1",
+      max_players: 2,
+      room_name: "Word Rally Room"
+    });
+
+    await roomService.joinRoom(trace, {
+      player_id: "player-2",
+      room_id: created.room.room_id,
+      session_id: "sess-player-2"
+    });
+
+    const initialSnapshot = await runtime.getGameSnapshot(
+      trace,
+      "word-rally",
+      created.room.room_id
+    );
+
+    expect(initialSnapshot?.state.prompt_id).toBe("word-rally-001");
+    expect(initialSnapshot?.state.players).toEqual(["host-1", "player-2"]);
+
+    const updatedSnapshot = await runtime.handleGameEvent(trace, {
+      gameId: "word-rally",
+      payload: {
+        wordId: "cloud"
+      },
+      playerId: "player-2",
+      roomId: created.room.room_id,
+      seq: 1,
+      type: "game_event"
+    });
+
+    expect(updatedSnapshot?.state.answer_count).toBe(1);
+    expect(updatedSnapshot?.state.scores).toEqual({
+      "host-1": 0,
+      "player-2": 10
+    });
 
     runtime.onModuleDestroy();
   });

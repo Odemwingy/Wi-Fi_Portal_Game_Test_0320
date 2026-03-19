@@ -56,6 +56,31 @@ const packageMetadata = [
       emitsStructuredLogs: true,
       supportsTraceContext: true
     }
+  }),
+  gamePackageMetadataSchema.parse({
+    id: "word-rally",
+    name: "Word Rally",
+    version: "1.0.0",
+    frontend: {
+      route: "/games/word-rally",
+      assetsPath: "/opt/games/word-rally/frontend"
+    },
+    server: {
+      image: "registry.local/word-rally-server:1.0.0",
+      port: 8081
+    },
+    realtime: {
+      protocol: "websocket"
+    },
+    dependencies: ["redis"],
+    capabilities: ["multiplayer", "leaderboard", "invite-code", "points-reporting"],
+    healthcheck: {
+      path: "/health"
+    },
+    observability: {
+      emitsStructuredLogs: true,
+      supportsTraceContext: true
+    }
   })
 ];
 
@@ -67,12 +92,16 @@ export const buildChannelCatalog = (): ChannelCatalogEntry[] =>
       description:
         metadata.id === "quiz-duel"
           ? "Fast head-to-head quiz battles for onboard LAN play."
-          : "Single-player puzzle loops optimized for short sessions.",
+          : metadata.id === "word-rally"
+            ? "Letter-based multiplayer word rounds designed for invite-code matches."
+            : "Single-player puzzle loops optimized for short sessions.",
       route: metadata.frontend.route,
       categories:
         metadata.id === "quiz-duel"
           ? ["Multiplayer", "Trivia", "Featured"]
-          : ["Single Player", "Puzzle", "Relaxed"],
+          : metadata.id === "word-rally"
+            ? ["Multiplayer", "Word", "Featured"]
+            : ["Single Player", "Puzzle", "Relaxed"],
       capabilities: metadata.capabilities,
       points_enabled: metadata.capabilities.includes("points-reporting")
     })

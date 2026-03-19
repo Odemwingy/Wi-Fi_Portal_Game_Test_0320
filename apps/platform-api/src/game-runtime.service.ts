@@ -14,6 +14,7 @@ import {
 } from "@wifi-portal/shared-observability";
 
 import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
+import { WordRallyAdapter } from "./game-adapters/word-rally.adapter";
 import { RoomService, type RoomSubscriptionEvent } from "./room.service";
 
 const logger = createStructuredLogger("platform-api.game-runtime");
@@ -29,10 +30,13 @@ export class GameRuntimeService implements OnModuleDestroy {
     @Inject(RoomService)
     private readonly roomService: RoomService,
     @Inject(QuizDuelAdapter)
-    quizDuelAdapter: QuizDuelAdapter
+    quizDuelAdapter: QuizDuelAdapter,
+    @Inject(WordRallyAdapter)
+    wordRallyAdapter: WordRallyAdapter
   ) {
     this.adapters = createGameAdapterRegistry([
-      quizDuelAdapter
+      quizDuelAdapter,
+      wordRallyAdapter
     ] satisfies readonly GameAdapter[]);
     this.unsubscribe = this.roomService.subscribe((event) => {
       void this.handleRoomEvent(event);

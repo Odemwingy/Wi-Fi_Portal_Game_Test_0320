@@ -7,9 +7,10 @@
 - PRD 要求总计 `25` 款游戏，其中 `15` 款支持单机 + 联机对战，`10` 款为单机游戏。
 - 技术架构采用统一 `Game Channel + Game Platform + Game Packages`，联机仅考虑机上局域网内对战。
 - 首发目标不是一次性交付 25 款，而是先用 `2-5` 款代表性游戏跑通频道、启动器、房间、实时协议、积分与权益闭环。
-- 当前代码基线里已经有两款验证游戏：
+- 当前代码基线里已经有三款验证游戏：
   - `quiz-duel`：双人答题对战，已接入房间、WS、积分、独立 package 页面。
   - `cabin-puzzle`：单机拼图，已接入启动器与独立 package 页面。
+  - `word-rally`：双人词汇回合对战，已接入房间、WS、积分与独立 package 页面。
 
 ## 2. 选型原则
 
@@ -37,7 +38,7 @@
 | ID | 游戏名 | 类型 | 联机模型 | 复杂度 | 优先级 | 推荐批次 | 当前状态 | 备注 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `quiz-duel` | Quiz Duel | 答题竞赛 | 双人 turn-based | S | P0 | Wave A | 已实现 | 当前首个联机验证样例 |
-| `word-rally` | Word Rally | 单词接龙 | 双人 turn-based | M | P1 | Wave A | 规划中 | 复用邀请码、回合与胜负结算 |
+| `word-rally` | Word Rally | 单词接龙 | 双人 turn-based | M | P1 | Wave A | 已实现 | 复用邀请码、回合与胜负结算 |
 | `memory-match-duel` | Memory Match Duel | 翻牌记忆 | 双人回合同步 | S | P1 | Wave A | 规划中 | 与 `cabin-puzzle` 视觉资产可共用 |
 | `spot-the-difference-race` | Spot the Difference Race | 找不同竞速 | 双人低频同步 | M | P1 | Wave A | 规划中 | 可单机计时，也可双人抢答 |
 | `mini-gomoku` | Mini Gomoku | 五子棋轻量版 | 双人 turn-based | S | P1 | Wave A | 规划中 | 规则稳定，服务端状态简单 |
