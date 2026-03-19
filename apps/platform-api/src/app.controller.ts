@@ -1,15 +1,44 @@
-import { Body, Controller, Get, Inject, Post, Query, Req } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Post,
+  Query,
+  Req,
+  ServiceUnavailableException
+} from "@nestjs/common";
 
 import { AppService } from "./app.service";
 import type { TraceRequest } from "./http.types";
+import { PlatformDiagnosticsService } from "./platform-diagnostics.service";
 
 @Controller()
 export class AppController {
-  constructor(@Inject(AppService) private readonly appService: AppService) {}
+  constructor(
+    @Inject(AppService) private readonly appService: AppService,
+    @Inject(PlatformDiagnosticsService)
+    private readonly platformDiagnosticsService: PlatformDiagnosticsService
+  ) {}
 
   @Get("health")
   getHealth() {
-    return this.appService.getHealth();
+    return this.platformDiagnosticsService.getLiveness();
+  }
+
+  @Get("health/ready")
+  async getReadiness() {
+    const readiness = await this.platformDiagnosticsService.getReadiness();
+    if (readiness.status !== "ready") {
+      throw new ServiceUnavailableException(readiness);
+    }
+
+    return readiness;
+  }
+
+  @Get("metrics")
+  getMetrics() {
+    return this.platformDiagnosticsService.getMetrics();
   }
 
   @Get("contracts/game-package")

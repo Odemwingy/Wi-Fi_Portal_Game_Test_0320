@@ -6,6 +6,7 @@ import { NestFactory } from "@nestjs/core";
 
 import { AppModule } from "./app.module";
 import { GameRuntimeService } from "./game-runtime.service";
+import { PlatformMetricsService } from "./platform-metrics.service";
 import { RealtimeServer } from "./realtime.server";
 import { RoomService } from "./room.service";
 
@@ -18,7 +19,8 @@ async function bootstrap() {
   const realtimeServer = new RealtimeServer(
     app.getHttpServer() as HttpServer,
     app.get(RoomService),
-    app.get(GameRuntimeService)
+    app.get(GameRuntimeService),
+    app.get(PlatformMetricsService)
   );
 
   app.getHttpServer().once("close", () => {

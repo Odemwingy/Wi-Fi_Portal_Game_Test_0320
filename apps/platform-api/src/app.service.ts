@@ -20,13 +20,6 @@ const logger = createStructuredLogger("platform-api.bff");
 
 @Injectable()
 export class AppService {
-  getHealth() {
-    return {
-      service: "platform-api",
-      status: "ok"
-    };
-  }
-
   getGamePackageContract(): Pick<
     GamePackageMetadata,
     "id" | "name" | "version" | "capabilities"

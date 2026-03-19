@@ -10,6 +10,11 @@ export type StateStoreSetOptions = {
 export abstract class JsonStateStore {
   abstract delete(key: string): Promise<void>;
   abstract get<T>(key: string): Promise<T | undefined>;
+  abstract getHealth(): Promise<{
+    backend: string;
+    detail: string | null;
+    status: "ok" | "error";
+  }>;
   abstract list(prefix: string): Promise<string[]>;
   abstract set<T>(
     key: string,
@@ -35,6 +40,14 @@ export class InMemoryJsonStateStore extends JsonStateStore {
   async get<T>(key: string) {
     this.cleanupKey(key);
     return this.entries.get(key)?.value as T | undefined;
+  }
+
+  async getHealth() {
+    return {
+      backend: "memory",
+      detail: "in-memory state store is available",
+      status: "ok" as const
+    };
   }
 
   async list(prefix: string) {
@@ -98,6 +111,25 @@ export class RedisJsonStateStore
     }
 
     return JSON.parse(raw) as T;
+  }
+
+  async getHealth() {
+    try {
+      const client = await this.getClient();
+      const result = await client.ping();
+
+      return {
+        backend: "redis",
+        detail: result,
+        status: result === "PONG" ? "ok" as const : "error" as const
+      };
+    } catch (error) {
+      return {
+        backend: "redis",
+        detail: error instanceof Error ? error.message : "Unknown Redis health error",
+        status: "error" as const
+      };
+    }
   }
 
   async list(prefix: string) {

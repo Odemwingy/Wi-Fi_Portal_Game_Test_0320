@@ -67,6 +67,8 @@ This starts:
 The API container is wired to Redis by default and exposes:
 
 - `GET http://127.0.0.1:3000/api/health`
+- `GET http://127.0.0.1:3000/api/health/ready`
+- `GET http://127.0.0.1:3000/api/metrics`
 - `WS  http://127.0.0.1:3000/ws/game-room`
 
 The default environment template is [`.env.example`](./.env.example). The Redis container definition lives in [`docker-compose.yml`](./docker-compose.yml).
@@ -78,3 +80,11 @@ The default environment template is [`.env.example`](./.env.example). The Redis 
 - `packages/game-sdk` defines the integration contract for onboard game packages.
 - `packages/shared-observability` is created at project bootstrap time, per the observability wiki requirements.
 - `apps/platform-api` can now switch between in-memory state and Redis-backed state through `STATE_STORE_BACKEND`.
+
+## Observability and Rollback
+
+- HTTP access logs, room lifecycle logs, realtime logs, points logs, and rewards logs all use the shared JSON Lines logger with `trace_id/span_id`.
+- `GET /api/health` is the liveness check.
+- `GET /api/health/ready` validates readiness against the configured state store backend.
+- `GET /api/metrics` exposes the current room count, websocket connections, HTTP QPS, and average websocket RTT.
+- Release and rollback steps are documented in [`docs/release-playbook.md`](./docs/release-playbook.md).

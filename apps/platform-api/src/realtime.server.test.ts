@@ -11,6 +11,7 @@ import { WebSocket } from "ws";
 
 import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
 import { GameRuntimeService } from "./game-runtime.service";
+import { PlatformMetricsService } from "./platform-metrics.service";
 import { InMemoryJsonStateStore } from "./repositories/json-state-store";
 import { StateStoreQuizDuelStateRepository } from "./repositories/quiz-duel-state.repository";
 import { StateStoreRoomRepository } from "./repositories/room.repository";
@@ -206,6 +207,7 @@ async function createRealtimeFixture(
     roomService,
     new QuizDuelAdapter(new StateStoreQuizDuelStateRepository(stateStore))
   );
+  const metrics = new PlatformMetricsService();
   const trace = startTrace();
   const created = await roomService.createRoom(trace, {
     game_id: "quiz-duel",
@@ -224,7 +226,7 @@ async function createRealtimeFixture(
   const server = createServer((_request, response) => {
     response.writeHead(426).end();
   });
-  const realtimeServer = new RealtimeServer(server, roomService, runtime);
+  const realtimeServer = new RealtimeServer(server, roomService, runtime, metrics);
 
   closers.push(async () => {
     realtimeServer.close();

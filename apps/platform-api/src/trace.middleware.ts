@@ -8,6 +8,7 @@ import {
 } from "@wifi-portal/shared-observability";
 
 import type { TraceRequest } from "./http.types";
+import { sharedPlatformMetricsService } from "./platform-metrics.service";
 
 const logger = createStructuredLogger("platform-api");
 
@@ -33,12 +34,22 @@ export class TraceMiddleware implements NestMiddleware {
     });
 
     res.on("finish", () => {
+      const durationMs = Date.now() - startedAt;
+      const path = req.path || req.originalUrl.split("?")[0] || req.originalUrl;
+
+      sharedPlatformMetricsService.recordHttpRequest({
+        duration_ms: durationMs,
+        method: req.method,
+        path,
+        status_code: res.statusCode
+      });
+
       logger.info("request.completed", req.trace_context!, {
-        duration_ms: Date.now() - startedAt,
+        duration_ms: durationMs,
         output_summary: `${res.statusCode}`,
         metadata: {
           method: req.method,
-          path: req.originalUrl
+          path
         }
       });
     });

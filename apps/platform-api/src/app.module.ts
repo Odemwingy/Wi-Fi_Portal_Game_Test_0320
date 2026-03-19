@@ -9,6 +9,11 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
 import { GameRuntimeService } from "./game-runtime.service";
+import { PlatformDiagnosticsService } from "./platform-diagnostics.service";
+import {
+  PlatformMetricsService,
+  sharedPlatformMetricsService
+} from "./platform-metrics.service";
 import { PointsController } from "./points.controller";
 import { PointsService } from "./points.service";
 import { RewardsController } from "./rewards.controller";
@@ -44,11 +49,17 @@ import { TraceMiddleware } from "./trace.middleware";
   controllers: [AppController, RoomController, PointsController, RewardsController],
   providers: [
     AppService,
+    PlatformDiagnosticsService,
     PointsService,
     RewardsService,
     RoomService,
     GameRuntimeService,
     QuizDuelAdapter,
+    TraceMiddleware,
+    {
+      provide: PlatformMetricsService,
+      useValue: sharedPlatformMetricsService
+    },
     {
       provide: JsonStateStore,
       useFactory: () => {

@@ -22,6 +22,7 @@ import {
   type RoomSubscriptionEvent
 } from "./room.service";
 import { GameRuntimeService } from "./game-runtime.service";
+import { PlatformMetricsService } from "./platform-metrics.service";
 
 type ConnectedClient = {
   player_id: string;
@@ -38,6 +39,7 @@ const WS_PATH = "/ws/game-room";
 export class RealtimeServer {
   private readonly clientsByRoom = new Map<string, Set<ConnectedClient>>();
   private readonly clientsBySocket = new Map<WebSocket, ConnectedClient>();
+  private readonly heartbeatTimer: NodeJS.Timeout;
   private readonly roomUnsubscribe: () => void;
   private readonly wsServer: WebSocketServer;
   private isClosed = false;
@@ -45,7 +47,8 @@ export class RealtimeServer {
   constructor(
     server: HttpServer,
     private readonly roomService: RoomService,
-    private readonly gameRuntimeService: GameRuntimeService
+    private readonly gameRuntimeService: GameRuntimeService,
+    private readonly platformMetricsService: PlatformMetricsService
   ) {
     this.wsServer = new WebSocketServer({
       path: WS_PATH,
@@ -61,6 +64,9 @@ export class RealtimeServer {
     this.wsServer.on("close", () => {
       this.cleanup();
     });
+    this.heartbeatTimer = setInterval(() => {
+      this.pingClients();
+    }, 30_000);
   }
 
   close() {
@@ -76,6 +82,7 @@ export class RealtimeServer {
       return;
     }
     this.isClosed = true;
+    clearInterval(this.heartbeatTimer);
     this.roomUnsubscribe();
     this.clientsByRoom.clear();
     this.clientsBySocket.clear();
@@ -137,6 +144,7 @@ export class RealtimeServer {
       };
 
       this.registerClient(client);
+      this.platformMetricsService.recordWsConnectionOpened();
       this.sendRoomSnapshot(client.socket, traceContext, room, null);
       const gameSnapshot = await this.gameRuntimeService.getGameSnapshot(
         traceContext,
@@ -156,6 +164,12 @@ export class RealtimeServer {
 
       socket.on("message", (raw) => {
         void this.handleMessage(client, raw);
+      });
+      socket.on("pong", (buffer) => {
+        const sentAt = Number(buffer.toString());
+        if (Number.isFinite(sentAt) && sentAt > 0) {
+          this.platformMetricsService.recordWsRtt(Date.now() - sentAt);
+        }
       });
       socket.on("close", () => {
         void this.handleSocketClose(client);
@@ -220,6 +234,7 @@ export class RealtimeServer {
         return;
       }
 
+      this.platformMetricsService.recordWsMessage("received", parsed.data.type);
       await this.dispatchMessage(client, span, parsed.data);
     } catch (error) {
       const detail =
@@ -253,6 +268,7 @@ export class RealtimeServer {
 
     const span = startChildSpan(client.trace_context);
     this.removeClient(client);
+    this.platformMetricsService.recordWsConnectionClosed();
 
     try {
       await this.roomService.disconnect(span, client.room_id, client.player_id);
@@ -661,7 +677,20 @@ export class RealtimeServer {
       message_id: this.createMessageId()
     });
 
+    this.platformMetricsService.recordWsMessage("sent", parsed.type);
     socket.send(JSON.stringify(parsed));
+  }
+
+  private pingClients() {
+    const heartbeatPayload = Buffer.from(`${Date.now()}`);
+
+    for (const client of this.clientsBySocket.values()) {
+      if (client.socket.readyState !== client.socket.OPEN) {
+        continue;
+      }
+
+      client.socket.ping(heartbeatPayload);
+    }
   }
 
   private rejectConnection(
