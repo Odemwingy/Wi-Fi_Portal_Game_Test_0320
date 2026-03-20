@@ -18,6 +18,7 @@ import { CabinCardClashAdapter } from "./game-adapters/cabin-card-clash.adapter"
 import { BaggageSortShowdownAdapter } from "./game-adapters/baggage-sort-showdown.adapter";
 import { MiniGomokuAdapter } from "./game-adapters/mini-gomoku.adapter";
 import { MemoryMatchDuelAdapter } from "./game-adapters/memory-match-duel.adapter";
+import { PuzzleRaceGridAdapter } from "./game-adapters/puzzle-race-grid.adapter";
 import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
 import { RouteBuilderDuelAdapter } from "./game-adapters/route-builder-duel.adapter";
 import { SeatMapStrategyAdapter } from "./game-adapters/seat-map-strategy.adapter";
@@ -49,6 +50,8 @@ export class GameRuntimeService implements OnModuleDestroy {
     miniGomokuAdapter: MiniGomokuAdapter,
     @Inject(MemoryMatchDuelAdapter)
     memoryMatchDuelAdapter: MemoryMatchDuelAdapter,
+    @Inject(PuzzleRaceGridAdapter)
+    puzzleRaceGridAdapter: PuzzleRaceGridAdapter,
     @Inject(QuizDuelAdapter)
     quizDuelAdapter: QuizDuelAdapter,
     @Inject(RouteBuilderDuelAdapter)
@@ -70,6 +73,7 @@ export class GameRuntimeService implements OnModuleDestroy {
       baggageSortShowdownAdapter,
       miniGomokuAdapter,
       memoryMatchDuelAdapter,
+      puzzleRaceGridAdapter,
       quizDuelAdapter,
       routeBuilderDuelAdapter,
       seatMapStrategyAdapter,

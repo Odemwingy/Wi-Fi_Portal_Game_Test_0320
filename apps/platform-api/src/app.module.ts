@@ -26,6 +26,7 @@ import { CabinCardClashAdapter } from "./game-adapters/cabin-card-clash.adapter"
 import { BaggageSortShowdownAdapter } from "./game-adapters/baggage-sort-showdown.adapter";
 import { MiniGomokuAdapter } from "./game-adapters/mini-gomoku.adapter";
 import { MemoryMatchDuelAdapter } from "./game-adapters/memory-match-duel.adapter";
+import { PuzzleRaceGridAdapter } from "./game-adapters/puzzle-race-grid.adapter";
 import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
 import { RouteBuilderDuelAdapter } from "./game-adapters/route-builder-duel.adapter";
 import { SeatMapStrategyAdapter } from "./game-adapters/seat-map-strategy.adapter";
@@ -100,6 +101,10 @@ import {
   PointsRepository,
   StateStorePointsRepository
 } from "./repositories/points.repository";
+import {
+  PuzzleRaceGridStateRepository,
+  StateStorePuzzleRaceGridStateRepository
+} from "./repositories/puzzle-race-grid-state.repository";
 import {
   RouteBuilderDuelStateRepository,
   StateStoreRouteBuilderDuelStateRepository
@@ -183,6 +188,7 @@ import { TraceMiddleware } from "./trace.middleware";
     BaggageSortShowdownAdapter,
     MiniGomokuAdapter,
     MemoryMatchDuelAdapter,
+    PuzzleRaceGridAdapter,
     QuizDuelAdapter,
     RouteBuilderDuelAdapter,
     SeatMapStrategyAdapter,
@@ -267,6 +273,10 @@ import { TraceMiddleware } from "./trace.middleware";
     {
       provide: MemoryMatchDuelStateRepository,
       useClass: StateStoreMemoryMatchDuelStateRepository
+    },
+    {
+      provide: PuzzleRaceGridStateRepository,
+      useClass: StateStorePuzzleRaceGridStateRepository
     },
     {
       provide: SpotTheDifferenceRaceStateRepository,

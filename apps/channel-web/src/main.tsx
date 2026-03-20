@@ -15,6 +15,7 @@ import { MealCartMatchPackagePage } from "./MealCartMatchPackagePage";
 import { MemoryMatchDuelPackagePage } from "./MemoryMatchDuelPackagePage";
 import { MiniGomokuPackagePage } from "./MiniGomokuPackagePage";
 import { PortalHostPage } from "./PortalHostPage";
+import { PuzzleRaceGridPackagePage } from "./PuzzleRaceGridPackagePage";
 import { QuizDuelPackagePage } from "./QuizDuelPackagePage";
 import { QuietCabinSudokuPackagePage } from "./QuietCabinSudokuPackagePage";
 import { RunwayRushPackagePage } from "./RunwayRushPackagePage";
@@ -40,6 +41,8 @@ const RootComponent =
       ? AircraftFixKitPackagePage
     : pathname === "/games/quiz-duel"
       ? QuizDuelPackagePage
+      : pathname === "/games/puzzle-race-grid"
+        ? PuzzleRaceGridPackagePage
       : pathname === "/games/route-builder-duel"
         ? RouteBuilderDuelPackagePage
       : pathname === "/games/airline-trivia-teams"

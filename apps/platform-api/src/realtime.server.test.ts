@@ -14,6 +14,7 @@ import { CabinCardClashAdapter } from "./game-adapters/cabin-card-clash.adapter"
 import { BaggageSortShowdownAdapter } from "./game-adapters/baggage-sort-showdown.adapter";
 import { MiniGomokuAdapter } from "./game-adapters/mini-gomoku.adapter";
 import { MemoryMatchDuelAdapter } from "./game-adapters/memory-match-duel.adapter";
+import { PuzzleRaceGridAdapter } from "./game-adapters/puzzle-race-grid.adapter";
 import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
 import { RouteBuilderDuelAdapter } from "./game-adapters/route-builder-duel.adapter";
 import { SeatMapStrategyAdapter } from "./game-adapters/seat-map-strategy.adapter";
@@ -29,6 +30,7 @@ import { StateStoreAirlineTriviaTeamsStateRepository } from "./repositories/airl
 import { InMemoryJsonStateStore } from "./repositories/json-state-store";
 import { StateStoreMiniGomokuStateRepository } from "./repositories/mini-gomoku-state.repository";
 import { StateStoreMemoryMatchDuelStateRepository } from "./repositories/memory-match-duel-state.repository";
+import { StateStorePuzzleRaceGridStateRepository } from "./repositories/puzzle-race-grid-state.repository";
 import { StateStoreQuizDuelStateRepository } from "./repositories/quiz-duel-state.repository";
 import { StateStoreRouteBuilderDuelStateRepository } from "./repositories/route-builder-duel-state.repository";
 import { StateStoreRoomRepository } from "./repositories/room.repository";
@@ -312,6 +314,7 @@ async function createRealtimeFixture(
     gameId?:
       | "memory-match-duel"
       | "mini-gomoku"
+      | "puzzle-race-grid"
       | "quiz-duel"
       | "route-builder-duel"
       | "seat-map-strategy"
@@ -336,6 +339,9 @@ async function createRealtimeFixture(
     new MiniGomokuAdapter(new StateStoreMiniGomokuStateRepository(stateStore)),
     new MemoryMatchDuelAdapter(
       new StateStoreMemoryMatchDuelStateRepository(stateStore)
+    ),
+    new PuzzleRaceGridAdapter(
+      new StateStorePuzzleRaceGridStateRepository(stateStore)
     ),
     new QuizDuelAdapter(new StateStoreQuizDuelStateRepository(stateStore)),
     new RouteBuilderDuelAdapter(

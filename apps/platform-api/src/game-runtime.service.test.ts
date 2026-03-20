@@ -7,6 +7,7 @@ import { CabinCardClashAdapter } from "./game-adapters/cabin-card-clash.adapter"
 import { BaggageSortShowdownAdapter } from "./game-adapters/baggage-sort-showdown.adapter";
 import { MiniGomokuAdapter } from "./game-adapters/mini-gomoku.adapter";
 import { MemoryMatchDuelAdapter } from "./game-adapters/memory-match-duel.adapter";
+import { PuzzleRaceGridAdapter } from "./game-adapters/puzzle-race-grid.adapter";
 import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
 import { RouteBuilderDuelAdapter } from "./game-adapters/route-builder-duel.adapter";
 import { SeatMapStrategyAdapter } from "./game-adapters/seat-map-strategy.adapter";
@@ -21,6 +22,7 @@ import { StateStoreAirlineTriviaTeamsStateRepository } from "./repositories/airl
 import { InMemoryJsonStateStore } from "./repositories/json-state-store";
 import { StateStoreMiniGomokuStateRepository } from "./repositories/mini-gomoku-state.repository";
 import { StateStoreMemoryMatchDuelStateRepository } from "./repositories/memory-match-duel-state.repository";
+import { StateStorePuzzleRaceGridStateRepository } from "./repositories/puzzle-race-grid-state.repository";
 import { StateStoreQuizDuelStateRepository } from "./repositories/quiz-duel-state.repository";
 import { StateStoreRouteBuilderDuelStateRepository } from "./repositories/route-builder-duel-state.repository";
 import { StateStoreRoomRepository } from "./repositories/room.repository";
@@ -46,6 +48,9 @@ function createRuntime(stateStore: InMemoryJsonStateStore, roomService: RoomServ
     new MiniGomokuAdapter(new StateStoreMiniGomokuStateRepository(stateStore)),
     new MemoryMatchDuelAdapter(
       new StateStoreMemoryMatchDuelStateRepository(stateStore)
+    ),
+    new PuzzleRaceGridAdapter(
+      new StateStorePuzzleRaceGridStateRepository(stateStore)
     ),
     new QuizDuelAdapter(new StateStoreQuizDuelStateRepository(stateStore)),
     new RouteBuilderDuelAdapter(
@@ -1117,6 +1122,118 @@ describe("GameRuntimeService", () => {
       lane: "northern",
       legId: "leg-icn-pvg",
       playerId: "player-2"
+    });
+
+    runtime.onModuleDestroy();
+  });
+
+  it("supports puzzle-race-grid rooms with ordered shared-grid racing", async () => {
+    const stateStore = new InMemoryJsonStateStore();
+    const roomService = new RoomService(new StateStoreRoomRepository(stateStore));
+    const runtime = createRuntime(stateStore, roomService);
+    const trace = startTrace();
+
+    const created = await roomService.createRoom(trace, {
+      game_id: "puzzle-race-grid",
+      host_player_id: "host-1",
+      host_session_id: "sess-host-1",
+      max_players: 2,
+      room_name: "Puzzle Race Grid Room"
+    });
+
+    await roomService.joinRoom(trace, {
+      player_id: "player-2",
+      room_id: created.room.room_id,
+      session_id: "sess-player-2"
+    });
+
+    const initialSnapshot = await runtime.getGameSnapshot(
+      trace,
+      "puzzle-race-grid",
+      created.room.room_id
+    );
+
+    expect(initialSnapshot?.state.target_cell_ids).toEqual([
+      "grid-a1",
+      "grid-b2",
+      "grid-c3",
+      "grid-d4",
+      "grid-c4"
+    ]);
+
+    const ignoredSnapshot = await runtime.handleGameEvent(trace, {
+      gameId: "puzzle-race-grid",
+      payload: {
+        cellId: "grid-a2"
+      },
+      playerId: "player-2",
+      roomId: created.room.room_id,
+      seq: 1,
+      type: "game_event"
+    });
+
+    expect(ignoredSnapshot?.state.last_move).toMatchObject({
+      cellId: "grid-a2",
+      playerId: "player-2",
+      status: "ignored"
+    });
+
+    await runtime.handleGameEvent(trace, {
+      gameId: "puzzle-race-grid",
+      payload: {
+        cellId: "grid-a1"
+      },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 1,
+      type: "game_event"
+    });
+    await runtime.handleGameEvent(trace, {
+      gameId: "puzzle-race-grid",
+      payload: {
+        cellId: "grid-b2"
+      },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 2,
+      type: "game_event"
+    });
+    await runtime.handleGameEvent(trace, {
+      gameId: "puzzle-race-grid",
+      payload: {
+        cellId: "grid-c3"
+      },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 3,
+      type: "game_event"
+    });
+    await runtime.handleGameEvent(trace, {
+      gameId: "puzzle-race-grid",
+      payload: {
+        cellId: "grid-d4"
+      },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 4,
+      type: "game_event"
+    });
+    const finalSnapshot = await runtime.handleGameEvent(trace, {
+      gameId: "puzzle-race-grid",
+      payload: {
+        cellId: "grid-c4"
+      },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 5,
+      type: "game_event"
+    });
+
+    expect(finalSnapshot?.state.is_completed).toBe(true);
+    expect(finalSnapshot?.state.winner_player_ids).toEqual(["host-1"]);
+    expect(finalSnapshot?.state.scores).toEqual({
+      "host-1": 21,
+      "player-2": 0
     });
 
     runtime.onModuleDestroy();

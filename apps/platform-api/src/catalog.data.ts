@@ -537,6 +537,31 @@ const packageMetadata = [
       emitsStructuredLogs: true,
       supportsTraceContext: true
     }
+  }),
+  gamePackageMetadataSchema.parse({
+    id: "puzzle-race-grid",
+    name: "Puzzle Race Grid",
+    version: "1.0.0",
+    frontend: {
+      route: "/games/puzzle-race-grid",
+      assetsPath: "/opt/games/puzzle-race-grid/frontend"
+    },
+    server: {
+      image: "registry.local/puzzle-race-grid-server:1.0.0",
+      port: 8109
+    },
+    realtime: {
+      protocol: "websocket"
+    },
+    dependencies: ["redis"],
+    capabilities: ["multiplayer", "points-reporting"],
+    healthcheck: {
+      path: "/health"
+    },
+    observability: {
+      emitsStructuredLogs: true,
+      supportsTraceContext: true
+    }
   })
 ];
 
@@ -688,6 +713,8 @@ function getBaseCategories(gameId: string) {
       return ["Single Player", "Puzzle", "Featured"];
     case "route-builder-duel":
       return ["Multiplayer", "Strategy", "Featured"];
+    case "puzzle-race-grid":
+      return ["Multiplayer", "Puzzle", "Featured"];
     default:
       return ["Single Player", "Puzzle", "Relaxed"];
   }
@@ -735,6 +762,8 @@ function getBaseDescription(gameId: string) {
       return "Short solo repair loops where passengers restore cabin parts in the correct tool order.";
     case "route-builder-duel":
       return "Turn-based route drafting where two passengers build higher-scoring cabin-friendly flight legs.";
+    case "puzzle-race-grid":
+      return "Asynchronous shared-grid racing where players clear the right cells in order to finish first.";
     default:
       return "Single-player puzzle loops optimized for short sessions.";
   }
