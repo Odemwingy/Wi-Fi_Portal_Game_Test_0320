@@ -24,8 +24,7 @@ import {
 import { MemoryMatchRuntimePanel } from "./memory-match-runtime";
 import { parseMemoryMatchState } from "./memory-match-runtime-state";
 import {
-  readPackageLaunchContext,
-  type PackageLaunchContext
+  usePackageLaunchContext
 } from "./package-launch-context";
 
 type RoomStatus = "idle" | "connecting" | "connected" | "error";
@@ -39,9 +38,7 @@ type ActivityItem = {
 };
 
 export function MemoryMatchDuelPackagePage() {
-  const [launchContext] = useState<PackageLaunchContext>(() =>
-    readPackageLaunchContext(window.location.search)
-  );
+  const { launchContext } = usePackageLaunchContext("memory-match-duel");
   const [activeRoom, setActiveRoom] = useState<RoomSnapshot | null>(null);
   const [gameState, setGameState] = useState<GameStateSnapshot | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);

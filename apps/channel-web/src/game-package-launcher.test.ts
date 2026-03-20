@@ -5,6 +5,7 @@ import type { ChannelCatalogEntry, GameLaunchContext } from "@wifi-portal/game-s
 import {
   buildGamePackageLaunchSpec,
   buildGamePackageLaunchUrl,
+  buildPortalHostUrl,
   getGamePackageLaunchMode
 } from "./game-package-launcher";
 
@@ -48,6 +49,21 @@ describe("game-package-launcher", () => {
     expect(getGamePackageLaunchMode("cabin-puzzle")).toBe("iframe");
   });
 
+  it("builds a portal host url for iframe embedding contracts", () => {
+    const portalUrl = buildPortalHostUrl({
+      baseUrl: "http://127.0.0.1:5173",
+      gameId: "cabin-puzzle",
+      launchContext,
+      roomId: null,
+      route: "/games/cabin-puzzle",
+      traceId: "trace-portal-1"
+    });
+
+    expect(portalUrl).toBe(
+      "http://127.0.0.1:5173/portal/host?game_id=cabin-puzzle&route=%2Fgames%2Fcabin-puzzle&trace_id=trace-portal-1&airline_code=MU&cabin_class=economy&locale=zh-CN&passenger_id=passenger-1&session_id=sess-1&seat_number=32A"
+    );
+  });
+
   it("builds a stable launch spec for the selected package", () => {
     const spec = buildGamePackageLaunchSpec({
       baseUrl: "http://127.0.0.1:5173",
@@ -73,6 +89,8 @@ describe("game-package-launcher", () => {
       displayName: "Quiz Duel",
       gameId: "quiz-duel",
       mode: "embedded",
+      portalUrl:
+        "http://127.0.0.1:5173/portal/host?game_id=quiz-duel&route=%2Fgames%2Fquiz-duel&trace_id=trace-2&airline_code=MU&cabin_class=economy&locale=zh-CN&passenger_id=passenger-1&session_id=sess-1&seat_number=32A&room_id=room-1",
       roomId: "room-1",
       route: "/games/quiz-duel",
       traceId: "trace-2"

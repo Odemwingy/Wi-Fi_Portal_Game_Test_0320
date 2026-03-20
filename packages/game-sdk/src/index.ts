@@ -8,6 +8,7 @@ export * from "./metadata";
 export * from "./multiplayer";
 export * from "./points";
 export * from "./points-rules";
+export * from "./portal";
 export * from "./rewards";
 export * from "./runtime";
 export * from "./spot-the-difference";

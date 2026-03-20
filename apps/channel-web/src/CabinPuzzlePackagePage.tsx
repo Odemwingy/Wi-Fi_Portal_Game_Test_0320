@@ -6,8 +6,7 @@ import {
   reportPoints
 } from "./channel-api";
 import {
-  readPackageLaunchContext,
-  type PackageLaunchContext
+  usePackageLaunchContext
 } from "./package-launch-context";
 
 type PuzzleStage = "idle" | "playing" | "solved";
@@ -28,9 +27,7 @@ const SOLVED_TILES: PuzzleTile[] = [
 ];
 
 export function CabinPuzzlePackagePage() {
-  const [launchContext] = useState<PackageLaunchContext>(() =>
-    readPackageLaunchContext(window.location.search)
-  );
+  const { launchContext } = usePackageLaunchContext("cabin-puzzle");
   const [tiles, setTiles] = useState<PuzzleTile[]>(() => shuffleTiles(SOLVED_TILES));
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null);
   const [moveCount, setMoveCount] = useState(0);

@@ -22,8 +22,7 @@ import {
   reportPoints
 } from "./channel-api";
 import {
-  readPackageLaunchContext,
-  type PackageLaunchContext
+  usePackageLaunchContext
 } from "./package-launch-context";
 import {
   WordRallyRuntimePanel
@@ -43,9 +42,7 @@ type ActivityItem = {
 };
 
 export function WordRallyPackagePage() {
-  const [launchContext] = useState<PackageLaunchContext>(() =>
-    readPackageLaunchContext(window.location.search)
-  );
+  const { launchContext } = usePackageLaunchContext("word-rally");
   const [activeRoom, setActiveRoom] = useState<RoomSnapshot | null>(null);
   const [gameState, setGameState] = useState<GameStateSnapshot | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);

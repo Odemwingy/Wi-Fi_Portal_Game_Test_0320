@@ -6,8 +6,7 @@ import {
   reportPoints
 } from "./channel-api";
 import {
-  readPackageLaunchContext,
-  type PackageLaunchContext
+  usePackageLaunchContext
 } from "./package-launch-context";
 
 type ChallengeOption = {
@@ -108,9 +107,7 @@ const CHALLENGE_ROUNDS: ChallengeRound[] = [
 ];
 
 export function RunwayRushPackagePage() {
-  const [launchContext] = useState<PackageLaunchContext>(() =>
-    readPackageLaunchContext(window.location.search)
-  );
+  const { launchContext } = usePackageLaunchContext("runway-rush");
   const [stage, setStage] = useState<RushStage>("briefing");
   const [roundIndex, setRoundIndex] = useState(0);
   const [results, setResults] = useState<RoundResult[]>([]);

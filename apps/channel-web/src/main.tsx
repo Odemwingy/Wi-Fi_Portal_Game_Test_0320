@@ -6,6 +6,7 @@ import { AdminOperationsPage } from "./AdminOperationsPage";
 import { App } from "./App";
 import { CabinPuzzlePackagePage } from "./CabinPuzzlePackagePage";
 import { MemoryMatchDuelPackagePage } from "./MemoryMatchDuelPackagePage";
+import { PortalHostPage } from "./PortalHostPage";
 import { QuizDuelPackagePage } from "./QuizDuelPackagePage";
 import { RunwayRushPackagePage } from "./RunwayRushPackagePage";
 import { SpotTheDifferenceRacePackagePage } from "./SpotTheDifferenceRacePackagePage";
@@ -18,6 +19,8 @@ const RootComponent =
     ? AdminChannelPage
     : pathname === "/admin/operations"
       ? AdminOperationsPage
+    : pathname === "/portal/host"
+      ? PortalHostPage
     : pathname === "/games/quiz-duel"
     ? QuizDuelPackagePage
     : pathname === "/games/cabin-puzzle"

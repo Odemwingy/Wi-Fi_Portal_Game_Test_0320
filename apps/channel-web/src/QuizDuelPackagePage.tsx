@@ -29,8 +29,7 @@ import {
   type QuizChoice
 } from "./quiz-duel-runtime-state";
 import {
-  readPackageLaunchContext,
-  type PackageLaunchContext
+  usePackageLaunchContext
 } from "./package-launch-context";
 
 type RoomStatus = "idle" | "connecting" | "connected" | "error";
@@ -44,9 +43,7 @@ type ActivityItem = {
 };
 
 export function QuizDuelPackagePage() {
-  const [launchContext] = useState<PackageLaunchContext>(() =>
-    readPackageLaunchContext(window.location.search)
-  );
+  const { launchContext } = usePackageLaunchContext("quiz-duel");
   const [activeRoom, setActiveRoom] = useState<RoomSnapshot | null>(null);
   const [gameState, setGameState] = useState<GameStateSnapshot | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);

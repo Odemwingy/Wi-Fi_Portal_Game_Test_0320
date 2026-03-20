@@ -773,6 +773,34 @@ textarea:focus {
   background: rgba(255, 255, 255, 0.96);
 }
 
+.portal-frame-shell {
+  display: grid;
+  gap: 12px;
+}
+
+.portal-frame-bar {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: rgba(20, 32, 44, 0.08);
+}
+
+.portal-frame-bar span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.portal-frame {
+  width: 100%;
+  min-height: 720px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.96);
+}
+
 .launcher-placeholder {
   padding: 18px 0 0;
 }

@@ -24,8 +24,7 @@ import {
   reportPoints
 } from "./channel-api";
 import {
-  readPackageLaunchContext,
-  type PackageLaunchContext
+  usePackageLaunchContext
 } from "./package-launch-context";
 import { SpotRaceRuntimePanel } from "./spot-the-difference-runtime";
 import {
@@ -57,9 +56,7 @@ type SoloSpotRaceState = {
 };
 
 export function SpotTheDifferenceRacePackagePage() {
-  const [launchContext] = useState<PackageLaunchContext>(() =>
-    readPackageLaunchContext(window.location.search)
-  );
+  const { launchContext } = usePackageLaunchContext("spot-the-difference-race");
   const [activeRoom, setActiveRoom] = useState<RoomSnapshot | null>(null);
   const [gameState, setGameState] = useState<GameStateSnapshot | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);

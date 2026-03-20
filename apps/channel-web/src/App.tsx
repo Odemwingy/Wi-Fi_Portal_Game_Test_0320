@@ -1760,6 +1760,9 @@ export function App() {
                   <a className="action-button action-button-primary" href={launchSpec.url}>
                     打开 package 页
                   </a>
+                  <a className="action-button" href={launchSpec.portalUrl}>
+                    打开 Portal 壳
+                  </a>
                   <a
                     className="action-button"
                     href={launchSpec.url}
@@ -1778,6 +1781,11 @@ export function App() {
                   <p>{launchSpec.url}</p>
                 </div>
                 <div className="quiz-meta-card">
+                  <span>Portal Host</span>
+                  <strong>/portal/host</strong>
+                  <p>{launchSpec.portalUrl}</p>
+                </div>
+                <div className="quiz-meta-card">
                   <span>Launch Scope</span>
                   <strong>{launchSpec.roomId ? "room-scoped" : "session-scoped"}</strong>
                   <p>
@@ -1790,15 +1798,6 @@ export function App() {
                   <span>Trace</span>
                   <strong>{launchSpec.traceId}</strong>
                   <p>后续 package server 可直接继承这条 trace</p>
-                </div>
-                <div className="quiz-meta-card">
-                  <span>Package Mode</span>
-                  <strong>{launchSpec.mode}</strong>
-                  <p>
-                    {launchSpec.mode === "embedded"
-                      ? "使用本地 renderer registry"
-                      : "保留给独立 package route / iframe"}
-                  </p>
                 </div>
               </div>
 
@@ -1834,15 +1833,15 @@ export function App() {
                 <section className="launcher-iframe-panel">
                   <div className="panel-heading">
                     <div>
-                      <p className="panel-kicker">Iframe Preview</p>
-                      <h2>{selectedGame.display_name} 独立包预览</h2>
+                      <p className="panel-kicker">Portal Host Preview</p>
+                      <h2>{selectedGame.display_name} Portal 宿主预览</h2>
                     </div>
-                    <span className="pill">iframe</span>
+                    <span className="pill">portal + iframe</span>
                   </div>
                   <iframe
                     className="launcher-iframe"
-                    src={launchSpec.url}
-                    title={`${selectedGame.display_name} iframe preview`}
+                    src={launchSpec.portalUrl}
+                    title={`${selectedGame.display_name} portal host preview`}
                   />
                 </section>
               ) : null}

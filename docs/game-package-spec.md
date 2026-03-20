@@ -57,6 +57,29 @@ The platform bootstrap BFF currently exposes:
 
 These endpoints return validated payloads derived from the shared SDK schemas.
 
+## Portal Embed Contract
+
+For embedded Portal launches, the host shell uses `postMessage` to inject the
+same launch context into the game iframe.
+
+Current host route:
+
+- `/portal/host`
+
+Current bridge messages:
+
+- host -> package: `portal.host.launch-context`
+- package -> host: `portal.package.ready`
+- package -> host: `portal.package.resize`
+
+The canonical schemas live in:
+
+- `packages/game-sdk/src/portal.ts`
+
+Iframe packages should still support query-param launch as a fallback, but when
+`portal_host=1` is present they must accept host-injected context and report
+their height back to the shell.
+
 ## Event Contract
 
 All multiplayer games emit the shared event envelope:
