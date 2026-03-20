@@ -16,9 +16,9 @@
 
 截至当前基线：
 
-- 已落地游戏数：`21 / 25`
-- 已落地联机游戏：`12`
-- 已落地单机游戏：`9`
+- 已落地游戏数：`23 / 25`
+- 已落地联机游戏：`13`
+- 已落地单机游戏：`10`
 - GitHub open issues：仅剩 `#1` `#2` `#3` `#4` `#5` 五个 epic
 - GitHub Project：feature / task 基本已收敛为 `Done`
 
@@ -36,6 +36,7 @@
 - `airline-trivia-teams`
 - `tap-beat-battle`
 - `route-builder-duel`
+- `puzzle-race-grid`
 
 已落地的单机游戏：
 
@@ -48,6 +49,7 @@
 - `quiet-cabin-sudoku`
 - `star-map-relax`
 - `aircraft-fix-kit`
+- `seat-upgrade-shuffle`
 
 ## 3. 仓库结构
 
@@ -125,9 +127,7 @@
 
 优先顺序建议：
 
-1. `puzzle-race-grid`
-2. `seat-upgrade-shuffle`
-3. `skyline-defense-lite`
-4. `crew-coordination`
+1. `skyline-defense-lite`
+2. `crew-coordination`
 
-完成以上 4 个后，再回到 5 个 epic 做最终验收收口与关闭判断。
+完成以上 2 个后，再回到 5 个 epic 做最终验收收口与关闭判断。

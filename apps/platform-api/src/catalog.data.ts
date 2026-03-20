@@ -562,6 +562,31 @@ const packageMetadata = [
       emitsStructuredLogs: true,
       supportsTraceContext: true
     }
+  }),
+  gamePackageMetadataSchema.parse({
+    id: "seat-upgrade-shuffle",
+    name: "Seat Upgrade Shuffle",
+    version: "1.0.0",
+    frontend: {
+      route: "/games/seat-upgrade-shuffle",
+      assetsPath: "/opt/games/seat-upgrade-shuffle/frontend"
+    },
+    server: {
+      image: "registry.local/seat-upgrade-shuffle-server:1.0.0",
+      port: 8110
+    },
+    realtime: {
+      protocol: "sse"
+    },
+    dependencies: [],
+    capabilities: ["single-player", "points-reporting"],
+    healthcheck: {
+      path: "/health"
+    },
+    observability: {
+      emitsStructuredLogs: true,
+      supportsTraceContext: true
+    }
   })
 ];
 
@@ -715,6 +740,8 @@ function getBaseCategories(gameId: string) {
       return ["Multiplayer", "Strategy", "Featured"];
     case "puzzle-race-grid":
       return ["Multiplayer", "Puzzle", "Featured"];
+    case "seat-upgrade-shuffle":
+      return ["Single Player", "Puzzle", "Featured"];
     default:
       return ["Single Player", "Puzzle", "Relaxed"];
   }
@@ -764,6 +791,8 @@ function getBaseDescription(gameId: string) {
       return "Turn-based route drafting where two passengers build higher-scoring cabin-friendly flight legs.";
     case "puzzle-race-grid":
       return "Asynchronous shared-grid racing where players clear the right cells in order to finish first.";
+    case "seat-upgrade-shuffle":
+      return "Solo seat-reassignment puzzles where passengers are swapped back into their preferred cabin upgrades with minimal moves.";
     default:
       return "Single-player puzzle loops optimized for short sessions.";
   }

@@ -20,6 +20,7 @@ import { QuizDuelPackagePage } from "./QuizDuelPackagePage";
 import { QuietCabinSudokuPackagePage } from "./QuietCabinSudokuPackagePage";
 import { RunwayRushPackagePage } from "./RunwayRushPackagePage";
 import { RouteBuilderDuelPackagePage } from "./RouteBuilderDuelPackagePage";
+import { SeatUpgradeShufflePackagePage } from "./SeatUpgradeShufflePackagePage";
 import { SeatMapStrategyPackagePage } from "./SeatMapStrategyPackagePage";
 import { SignalScramblePackagePage } from "./SignalScramblePackagePage";
 import { SpotTheDifferenceRacePackagePage } from "./SpotTheDifferenceRacePackagePage";
@@ -43,6 +44,8 @@ const RootComponent =
       ? QuizDuelPackagePage
       : pathname === "/games/puzzle-race-grid"
         ? PuzzleRaceGridPackagePage
+      : pathname === "/games/seat-upgrade-shuffle"
+        ? SeatUpgradeShufflePackagePage
       : pathname === "/games/route-builder-duel"
         ? RouteBuilderDuelPackagePage
       : pathname === "/games/airline-trivia-teams"
