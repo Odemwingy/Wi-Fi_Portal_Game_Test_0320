@@ -18,6 +18,7 @@ import { PortalHostPage } from "./PortalHostPage";
 import { QuizDuelPackagePage } from "./QuizDuelPackagePage";
 import { QuietCabinSudokuPackagePage } from "./QuietCabinSudokuPackagePage";
 import { RunwayRushPackagePage } from "./RunwayRushPackagePage";
+import { RouteBuilderDuelPackagePage } from "./RouteBuilderDuelPackagePage";
 import { SeatMapStrategyPackagePage } from "./SeatMapStrategyPackagePage";
 import { SignalScramblePackagePage } from "./SignalScramblePackagePage";
 import { SpotTheDifferenceRacePackagePage } from "./SpotTheDifferenceRacePackagePage";
@@ -39,6 +40,8 @@ const RootComponent =
       ? AircraftFixKitPackagePage
     : pathname === "/games/quiz-duel"
       ? QuizDuelPackagePage
+      : pathname === "/games/route-builder-duel"
+        ? RouteBuilderDuelPackagePage
       : pathname === "/games/airline-trivia-teams"
         ? AirlineTriviaTeamsPackagePage
       : pathname === "/games/tap-beat-battle"

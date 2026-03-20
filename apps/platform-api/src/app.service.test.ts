@@ -33,7 +33,7 @@ describe("AppService", () => {
   it("returns a channel catalog backed by managed package metadata", async () => {
     const catalog = await service.getCatalog(startTrace(), "MU", "zh-CN");
 
-    expect(catalog).toHaveLength(20);
+    expect(catalog).toHaveLength(21);
     expect(catalog.map((entry) => entry.game_id)).toEqual([
       "quiz-duel",
       "airline-trivia-teams",
@@ -54,7 +54,8 @@ describe("AppService", () => {
       "flight-path-puzzler",
       "quiet-cabin-sudoku",
       "star-map-relax",
-      "aircraft-fix-kit"
+      "aircraft-fix-kit",
+      "route-builder-duel"
     ]);
   });
 });

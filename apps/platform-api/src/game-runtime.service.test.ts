@@ -8,6 +8,7 @@ import { BaggageSortShowdownAdapter } from "./game-adapters/baggage-sort-showdow
 import { MiniGomokuAdapter } from "./game-adapters/mini-gomoku.adapter";
 import { MemoryMatchDuelAdapter } from "./game-adapters/memory-match-duel.adapter";
 import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
+import { RouteBuilderDuelAdapter } from "./game-adapters/route-builder-duel.adapter";
 import { SeatMapStrategyAdapter } from "./game-adapters/seat-map-strategy.adapter";
 import { SignalScrambleAdapter } from "./game-adapters/signal-scramble.adapter";
 import { SpotTheDifferenceRaceAdapter } from "./game-adapters/spot-the-difference-race.adapter";
@@ -21,6 +22,7 @@ import { InMemoryJsonStateStore } from "./repositories/json-state-store";
 import { StateStoreMiniGomokuStateRepository } from "./repositories/mini-gomoku-state.repository";
 import { StateStoreMemoryMatchDuelStateRepository } from "./repositories/memory-match-duel-state.repository";
 import { StateStoreQuizDuelStateRepository } from "./repositories/quiz-duel-state.repository";
+import { StateStoreRouteBuilderDuelStateRepository } from "./repositories/route-builder-duel-state.repository";
 import { StateStoreRoomRepository } from "./repositories/room.repository";
 import { StateStoreSeatMapStrategyStateRepository } from "./repositories/seat-map-strategy-state.repository";
 import { StateStoreSignalScrambleStateRepository } from "./repositories/signal-scramble-state.repository";
@@ -46,6 +48,9 @@ function createRuntime(stateStore: InMemoryJsonStateStore, roomService: RoomServ
       new StateStoreMemoryMatchDuelStateRepository(stateStore)
     ),
     new QuizDuelAdapter(new StateStoreQuizDuelStateRepository(stateStore)),
+    new RouteBuilderDuelAdapter(
+      new StateStoreRouteBuilderDuelStateRepository(stateStore)
+    ),
     new SeatMapStrategyAdapter(
       new StateStoreSeatMapStrategyStateRepository(stateStore)
     ),
@@ -998,6 +1003,120 @@ describe("GameRuntimeService", () => {
       playerId: "player-2",
       pointsAwarded: 2,
       seatId: "1B"
+    });
+
+    runtime.onModuleDestroy();
+  });
+
+  it("supports route-builder-duel rooms with lane combos and final winner", async () => {
+    const stateStore = new InMemoryJsonStateStore();
+    const roomService = new RoomService(new StateStoreRoomRepository(stateStore));
+    const runtime = createRuntime(stateStore, roomService);
+    const trace = startTrace();
+
+    const created = await roomService.createRoom(trace, {
+      game_id: "route-builder-duel",
+      host_player_id: "host-1",
+      host_session_id: "sess-host-1",
+      max_players: 2,
+      room_name: "Route Builder Room"
+    });
+
+    await roomService.joinRoom(trace, {
+      player_id: "player-2",
+      room_id: created.room.room_id,
+      session_id: "sess-player-2"
+    });
+
+    const initialSnapshot = await runtime.getGameSnapshot(
+      trace,
+      "route-builder-duel",
+      created.room.room_id
+    );
+
+    expect(initialSnapshot?.state.available_leg_count).toBe(6);
+    expect(initialSnapshot?.state.player_marks).toEqual({
+      "host-1": "C",
+      "player-2": "F"
+    });
+
+    await runtime.handleGameEvent(trace, {
+      gameId: "route-builder-duel",
+      payload: {
+        legId: "leg-sgh-hkg"
+      },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 1,
+      type: "game_event"
+    });
+
+    await runtime.handleGameEvent(trace, {
+      gameId: "route-builder-duel",
+      payload: {
+        legId: "leg-hkg-sin"
+      },
+      playerId: "player-2",
+      roomId: created.room.room_id,
+      seq: 1,
+      type: "game_event"
+    });
+
+    await runtime.handleGameEvent(trace, {
+      gameId: "route-builder-duel",
+      payload: {
+        legId: "leg-bkk-hnd"
+      },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 2,
+      type: "game_event"
+    });
+
+    await runtime.handleGameEvent(trace, {
+      gameId: "route-builder-duel",
+      payload: {
+        legId: "leg-sin-bkk"
+      },
+      playerId: "player-2",
+      roomId: created.room.room_id,
+      seq: 2,
+      type: "game_event"
+    });
+
+    await runtime.handleGameEvent(trace, {
+      gameId: "route-builder-duel",
+      payload: {
+        legId: "leg-hnd-icn"
+      },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 3,
+      type: "game_event"
+    });
+
+    const finalSnapshot = await runtime.handleGameEvent(trace, {
+      gameId: "route-builder-duel",
+      payload: {
+        legId: "leg-icn-pvg"
+      },
+      playerId: "player-2",
+      roomId: created.room.room_id,
+      seq: 3,
+      type: "game_event"
+    });
+
+    expect(finalSnapshot?.state.is_completed).toBe(true);
+    expect(finalSnapshot?.state.winner_player_ids).toEqual(["host-1"]);
+    expect(finalSnapshot?.state.scores).toEqual({
+      "host-1": 13,
+      "player-2": 12
+    });
+    expect(finalSnapshot?.state.last_move).toMatchObject({
+      comboBonus: 1,
+      lane: "northern",
+      legId: "leg-icn-pvg",
+      playerId: "player-2"
     });
 
     runtime.onModuleDestroy();

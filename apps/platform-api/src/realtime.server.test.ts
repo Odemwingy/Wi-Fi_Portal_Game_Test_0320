@@ -15,6 +15,7 @@ import { BaggageSortShowdownAdapter } from "./game-adapters/baggage-sort-showdow
 import { MiniGomokuAdapter } from "./game-adapters/mini-gomoku.adapter";
 import { MemoryMatchDuelAdapter } from "./game-adapters/memory-match-duel.adapter";
 import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
+import { RouteBuilderDuelAdapter } from "./game-adapters/route-builder-duel.adapter";
 import { SeatMapStrategyAdapter } from "./game-adapters/seat-map-strategy.adapter";
 import { SignalScrambleAdapter } from "./game-adapters/signal-scramble.adapter";
 import { SpotTheDifferenceRaceAdapter } from "./game-adapters/spot-the-difference-race.adapter";
@@ -29,6 +30,7 @@ import { InMemoryJsonStateStore } from "./repositories/json-state-store";
 import { StateStoreMiniGomokuStateRepository } from "./repositories/mini-gomoku-state.repository";
 import { StateStoreMemoryMatchDuelStateRepository } from "./repositories/memory-match-duel-state.repository";
 import { StateStoreQuizDuelStateRepository } from "./repositories/quiz-duel-state.repository";
+import { StateStoreRouteBuilderDuelStateRepository } from "./repositories/route-builder-duel-state.repository";
 import { StateStoreRoomRepository } from "./repositories/room.repository";
 import { StateStoreSeatMapStrategyStateRepository } from "./repositories/seat-map-strategy-state.repository";
 import { StateStoreSignalScrambleStateRepository } from "./repositories/signal-scramble-state.repository";
@@ -311,6 +313,7 @@ async function createRealtimeFixture(
       | "memory-match-duel"
       | "mini-gomoku"
       | "quiz-duel"
+      | "route-builder-duel"
       | "seat-map-strategy"
       | "signal-scramble"
       | "spot-the-difference-race"
@@ -335,6 +338,9 @@ async function createRealtimeFixture(
       new StateStoreMemoryMatchDuelStateRepository(stateStore)
     ),
     new QuizDuelAdapter(new StateStoreQuizDuelStateRepository(stateStore)),
+    new RouteBuilderDuelAdapter(
+      new StateStoreRouteBuilderDuelStateRepository(stateStore)
+    ),
     new SeatMapStrategyAdapter(
       new StateStoreSeatMapStrategyStateRepository(stateStore)
     ),

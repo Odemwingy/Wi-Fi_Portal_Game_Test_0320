@@ -512,6 +512,31 @@ const packageMetadata = [
       emitsStructuredLogs: true,
       supportsTraceContext: true
     }
+  }),
+  gamePackageMetadataSchema.parse({
+    id: "route-builder-duel",
+    name: "Route Builder Duel",
+    version: "1.0.0",
+    frontend: {
+      route: "/games/route-builder-duel",
+      assetsPath: "/opt/games/route-builder-duel/frontend"
+    },
+    server: {
+      image: "registry.local/route-builder-duel-server:1.0.0",
+      port: 8108
+    },
+    realtime: {
+      protocol: "websocket"
+    },
+    dependencies: [],
+    capabilities: ["multiplayer", "points-reporting"],
+    healthcheck: {
+      path: "/health"
+    },
+    observability: {
+      emitsStructuredLogs: true,
+      supportsTraceContext: true
+    }
   })
 ];
 
@@ -661,6 +686,8 @@ function getBaseCategories(gameId: string) {
       return ["Single Player", "Relaxed", "Featured"];
     case "aircraft-fix-kit":
       return ["Single Player", "Puzzle", "Featured"];
+    case "route-builder-duel":
+      return ["Multiplayer", "Strategy", "Featured"];
     default:
       return ["Single Player", "Puzzle", "Relaxed"];
   }
@@ -706,6 +733,8 @@ function getBaseDescription(gameId: string) {
       return "Low-pressure star tracing rounds designed for quiet night-flight relaxation and short solo sessions.";
     case "aircraft-fix-kit":
       return "Short solo repair loops where passengers restore cabin parts in the correct tool order.";
+    case "route-builder-duel":
+      return "Turn-based route drafting where two passengers build higher-scoring cabin-friendly flight legs.";
     default:
       return "Single-player puzzle loops optimized for short sessions.";
   }

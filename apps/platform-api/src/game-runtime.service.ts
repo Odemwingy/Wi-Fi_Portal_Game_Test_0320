@@ -19,6 +19,7 @@ import { BaggageSortShowdownAdapter } from "./game-adapters/baggage-sort-showdow
 import { MiniGomokuAdapter } from "./game-adapters/mini-gomoku.adapter";
 import { MemoryMatchDuelAdapter } from "./game-adapters/memory-match-duel.adapter";
 import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
+import { RouteBuilderDuelAdapter } from "./game-adapters/route-builder-duel.adapter";
 import { SeatMapStrategyAdapter } from "./game-adapters/seat-map-strategy.adapter";
 import { SignalScrambleAdapter } from "./game-adapters/signal-scramble.adapter";
 import { SpotTheDifferenceRaceAdapter } from "./game-adapters/spot-the-difference-race.adapter";
@@ -50,6 +51,8 @@ export class GameRuntimeService implements OnModuleDestroy {
     memoryMatchDuelAdapter: MemoryMatchDuelAdapter,
     @Inject(QuizDuelAdapter)
     quizDuelAdapter: QuizDuelAdapter,
+    @Inject(RouteBuilderDuelAdapter)
+    routeBuilderDuelAdapter: RouteBuilderDuelAdapter,
     @Inject(SeatMapStrategyAdapter)
     seatMapStrategyAdapter: SeatMapStrategyAdapter,
     @Inject(SignalScrambleAdapter)
@@ -68,6 +71,7 @@ export class GameRuntimeService implements OnModuleDestroy {
       miniGomokuAdapter,
       memoryMatchDuelAdapter,
       quizDuelAdapter,
+      routeBuilderDuelAdapter,
       seatMapStrategyAdapter,
       signalScrambleAdapter,
       spotTheDifferenceRaceAdapter,
