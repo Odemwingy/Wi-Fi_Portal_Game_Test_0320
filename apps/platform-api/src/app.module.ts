@@ -30,6 +30,7 @@ import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
 import { SeatMapStrategyAdapter } from "./game-adapters/seat-map-strategy.adapter";
 import { SignalScrambleAdapter } from "./game-adapters/signal-scramble.adapter";
 import { SpotTheDifferenceRaceAdapter } from "./game-adapters/spot-the-difference-race.adapter";
+import { TapBeatBattleAdapter } from "./game-adapters/tap-beat-battle.adapter";
 import { WordRallyAdapter } from "./game-adapters/word-rally.adapter";
 import { GameRuntimeService } from "./game-runtime.service";
 import { GameEventsController } from "./game-events.controller";
@@ -131,6 +132,10 @@ import {
   StateStoreSpotTheDifferenceRaceStateRepository
 } from "./repositories/spot-the-difference-race-state.repository";
 import {
+  StateStoreTapBeatBattleStateRepository,
+  TapBeatBattleStateRepository
+} from "./repositories/tap-beat-battle-state.repository";
+import {
   StateStoreWordRallyStateRepository,
   WordRallyStateRepository
 } from "./repositories/word-rally-state.repository";
@@ -177,6 +182,7 @@ import { TraceMiddleware } from "./trace.middleware";
     SeatMapStrategyAdapter,
     SignalScrambleAdapter,
     SpotTheDifferenceRaceAdapter,
+    TapBeatBattleAdapter,
     WordRallyAdapter,
     TraceMiddleware,
     {
@@ -255,6 +261,10 @@ import { TraceMiddleware } from "./trace.middleware";
     {
       provide: SpotTheDifferenceRaceStateRepository,
       useClass: StateStoreSpotTheDifferenceRaceStateRepository
+    },
+    {
+      provide: TapBeatBattleStateRepository,
+      useClass: StateStoreTapBeatBattleStateRepository
     },
     {
       provide: PointsRepository,

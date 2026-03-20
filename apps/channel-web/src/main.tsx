@@ -16,6 +16,7 @@ import { RunwayRushPackagePage } from "./RunwayRushPackagePage";
 import { SeatMapStrategyPackagePage } from "./SeatMapStrategyPackagePage";
 import { SignalScramblePackagePage } from "./SignalScramblePackagePage";
 import { SpotTheDifferenceRacePackagePage } from "./SpotTheDifferenceRacePackagePage";
+import { TapBeatBattlePackagePage } from "./TapBeatBattlePackagePage";
 import { WordRallyPackagePage } from "./WordRallyPackagePage";
 import "./styles.css";
 
@@ -31,6 +32,8 @@ const RootComponent =
       ? QuizDuelPackagePage
       : pathname === "/games/airline-trivia-teams"
         ? AirlineTriviaTeamsPackagePage
+      : pathname === "/games/tap-beat-battle"
+        ? TapBeatBattlePackagePage
       : pathname === "/games/cabin-card-clash"
         ? CabinCardClashPackagePage
       : pathname === "/games/baggage-sort-showdown"

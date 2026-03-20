@@ -22,6 +22,7 @@ import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
 import { SeatMapStrategyAdapter } from "./game-adapters/seat-map-strategy.adapter";
 import { SignalScrambleAdapter } from "./game-adapters/signal-scramble.adapter";
 import { SpotTheDifferenceRaceAdapter } from "./game-adapters/spot-the-difference-race.adapter";
+import { TapBeatBattleAdapter } from "./game-adapters/tap-beat-battle.adapter";
 import { WordRallyAdapter } from "./game-adapters/word-rally.adapter";
 import { RoomService, type RoomSubscriptionEvent } from "./room.service";
 
@@ -55,6 +56,8 @@ export class GameRuntimeService implements OnModuleDestroy {
     signalScrambleAdapter: SignalScrambleAdapter,
     @Inject(SpotTheDifferenceRaceAdapter)
     spotTheDifferenceRaceAdapter: SpotTheDifferenceRaceAdapter,
+    @Inject(TapBeatBattleAdapter)
+    tapBeatBattleAdapter: TapBeatBattleAdapter,
     @Inject(WordRallyAdapter)
     wordRallyAdapter: WordRallyAdapter
   ) {
@@ -68,6 +71,7 @@ export class GameRuntimeService implements OnModuleDestroy {
       seatMapStrategyAdapter,
       signalScrambleAdapter,
       spotTheDifferenceRaceAdapter,
+      tapBeatBattleAdapter,
       wordRallyAdapter
     ] satisfies readonly GameAdapter[]);
     this.unsubscribe = this.roomService.subscribe((event) => {

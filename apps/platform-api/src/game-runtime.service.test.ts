@@ -11,6 +11,7 @@ import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
 import { SeatMapStrategyAdapter } from "./game-adapters/seat-map-strategy.adapter";
 import { SignalScrambleAdapter } from "./game-adapters/signal-scramble.adapter";
 import { SpotTheDifferenceRaceAdapter } from "./game-adapters/spot-the-difference-race.adapter";
+import { TapBeatBattleAdapter } from "./game-adapters/tap-beat-battle.adapter";
 import { WordRallyAdapter } from "./game-adapters/word-rally.adapter";
 import { GameRuntimeService } from "./game-runtime.service";
 import { StateStoreCabinCardClashStateRepository } from "./repositories/cabin-card-clash-state.repository";
@@ -24,6 +25,7 @@ import { StateStoreRoomRepository } from "./repositories/room.repository";
 import { StateStoreSeatMapStrategyStateRepository } from "./repositories/seat-map-strategy-state.repository";
 import { StateStoreSignalScrambleStateRepository } from "./repositories/signal-scramble-state.repository";
 import { StateStoreSpotTheDifferenceRaceStateRepository } from "./repositories/spot-the-difference-race-state.repository";
+import { StateStoreTapBeatBattleStateRepository } from "./repositories/tap-beat-battle-state.repository";
 import { StateStoreWordRallyStateRepository } from "./repositories/word-rally-state.repository";
 import { RoomService } from "./room.service";
 
@@ -53,11 +55,124 @@ function createRuntime(stateStore: InMemoryJsonStateStore, roomService: RoomServ
     new SpotTheDifferenceRaceAdapter(
       new StateStoreSpotTheDifferenceRaceStateRepository(stateStore)
     ),
+    new TapBeatBattleAdapter(
+      new StateStoreTapBeatBattleStateRepository(stateStore)
+    ),
     new WordRallyAdapter(new StateStoreWordRallyStateRepository(stateStore))
   );
 }
 
 describe("GameRuntimeService", () => {
+  it("supports tap-beat-battle rooms with round-based tempo scoring", async () => {
+    const stateStore = new InMemoryJsonStateStore();
+    const roomService = new RoomService(new StateStoreRoomRepository(stateStore));
+    const runtime = createRuntime(stateStore, roomService);
+    const trace = startTrace();
+
+    const created = await roomService.createRoom(trace, {
+      game_id: "tap-beat-battle",
+      host_player_id: "host-1",
+      host_session_id: "sess-host-1",
+      max_players: 2,
+      room_name: "Tap Beat Room"
+    });
+
+    await roomService.joinRoom(trace, {
+      player_id: "player-2",
+      room_id: created.room.room_id,
+      session_id: "sess-player-2"
+    });
+
+    const initialSnapshot = await runtime.getGameSnapshot(
+      trace,
+      "tap-beat-battle",
+      created.room.room_id
+    );
+
+    expect(initialSnapshot?.state.current_pattern).toHaveLength(4);
+    expect(initialSnapshot?.state.progress_by_player).toEqual({
+      "host-1": 0,
+      "player-2": 0
+    });
+
+    await runtime.handleGameEvent(trace, {
+      gameId: "tap-beat-battle",
+      payload: { laneId: "left" },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 1,
+      type: "game_event"
+    });
+    await runtime.handleGameEvent(trace, {
+      gameId: "tap-beat-battle",
+      payload: { laneId: "right" },
+      playerId: "player-2",
+      roomId: created.room.room_id,
+      seq: 1,
+      type: "game_event"
+    });
+    await runtime.handleGameEvent(trace, {
+      gameId: "tap-beat-battle",
+      payload: { laneId: "center" },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 2,
+      type: "game_event"
+    });
+    await runtime.handleGameEvent(trace, {
+      gameId: "tap-beat-battle",
+      payload: { laneId: "center" },
+      playerId: "player-2",
+      roomId: created.room.room_id,
+      seq: 2,
+      type: "game_event"
+    });
+    await runtime.handleGameEvent(trace, {
+      gameId: "tap-beat-battle",
+      payload: { laneId: "right" },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 3,
+      type: "game_event"
+    });
+    await runtime.handleGameEvent(trace, {
+      gameId: "tap-beat-battle",
+      payload: { laneId: "left" },
+      playerId: "player-2",
+      roomId: created.room.room_id,
+      seq: 3,
+      type: "game_event"
+    });
+    await runtime.handleGameEvent(trace, {
+      gameId: "tap-beat-battle",
+      payload: { laneId: "center" },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 4,
+      type: "game_event"
+    });
+    const roundOneSnapshot = await runtime.handleGameEvent(trace, {
+      gameId: "tap-beat-battle",
+      payload: { laneId: "left" },
+      playerId: "player-2",
+      roomId: created.room.room_id,
+      seq: 4,
+      type: "game_event"
+    });
+
+    expect(roundOneSnapshot?.state.current_round_number).toBe(2);
+    expect(roundOneSnapshot?.state.last_completed_round).toMatchObject({
+      roundNumber: 1,
+      winnerPlayerIds: ["host-1"]
+    });
+    expect(roundOneSnapshot?.state.scores).toEqual({
+      "host-1": 16,
+      "player-2": 4
+    });
+
+    runtime.onModuleDestroy();
+  });
+
   it("supports airline-trivia-teams rooms with team scoring across 2-4 passengers", async () => {
     const stateStore = new InMemoryJsonStateStore();
     const roomService = new RoomService(new StateStoreRoomRepository(stateStore));

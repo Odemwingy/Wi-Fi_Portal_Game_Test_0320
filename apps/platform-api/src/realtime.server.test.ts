@@ -18,6 +18,7 @@ import { QuizDuelAdapter } from "./game-adapters/quiz-duel.adapter";
 import { SeatMapStrategyAdapter } from "./game-adapters/seat-map-strategy.adapter";
 import { SignalScrambleAdapter } from "./game-adapters/signal-scramble.adapter";
 import { SpotTheDifferenceRaceAdapter } from "./game-adapters/spot-the-difference-race.adapter";
+import { TapBeatBattleAdapter } from "./game-adapters/tap-beat-battle.adapter";
 import { WordRallyAdapter } from "./game-adapters/word-rally.adapter";
 import { GameRuntimeService } from "./game-runtime.service";
 import { PlatformMetricsService } from "./platform-metrics.service";
@@ -32,6 +33,7 @@ import { StateStoreRoomRepository } from "./repositories/room.repository";
 import { StateStoreSeatMapStrategyStateRepository } from "./repositories/seat-map-strategy-state.repository";
 import { StateStoreSignalScrambleStateRepository } from "./repositories/signal-scramble-state.repository";
 import { StateStoreSpotTheDifferenceRaceStateRepository } from "./repositories/spot-the-difference-race-state.repository";
+import { StateStoreTapBeatBattleStateRepository } from "./repositories/tap-beat-battle-state.repository";
 import { StateStoreWordRallyStateRepository } from "./repositories/word-rally-state.repository";
 import { RealtimeServer } from "./realtime.server";
 import { RoomService } from "./room.service";
@@ -341,6 +343,9 @@ async function createRealtimeFixture(
     ),
     new SpotTheDifferenceRaceAdapter(
       new StateStoreSpotTheDifferenceRaceStateRepository(stateStore)
+    ),
+    new TapBeatBattleAdapter(
+      new StateStoreTapBeatBattleStateRepository(stateStore)
     ),
     new WordRallyAdapter(new StateStoreWordRallyStateRepository(stateStore))
   );
