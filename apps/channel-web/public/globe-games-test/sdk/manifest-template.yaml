@@ -1,0 +1,65 @@
+# 游戏插件包 manifest 模板
+# 复制此文件到具体游戏目录并修改
+
+schemaVersion: "1.0"
+
+package:
+  packageId: "com.globe.games.GAME_ID"
+  packageVersion: "1.0.0"
+  packageFormat: "gpk"
+
+game:
+  id: "GAME_ID"
+  name: "GAME_NAME"
+  displayName:
+    zh-CN: "游戏名称"
+  description:
+    zh-CN: "游戏描述"
+  categories:
+    - "puzzle"
+  tags:
+    - "casual"
+  icon: "icon.png"
+
+runtime:
+  mode: "single"
+  entry:
+    type: "html"
+    path: "/frontend/index.html"
+  minPlatformVersion: "1.0.0"
+  targetSdkVersion: "1.0.0"
+  supportedDevices:
+    - "mobile"
+    - "tablet"
+  orientation:
+    - "portrait"
+  offlineSupported: true
+
+capabilities:
+  singlePlayer: true
+  multiplayer: false
+  leaderboard: true
+  saveData: true
+
+assets:
+  root: "/frontend"
+  basePath: "/frontend/assets"
+
+integration:
+  sdkVersion: "1.0.0"
+  adapter: "standard-singleplayer"
+  events:
+    required:
+      - "game_launch"
+      - "game_ready"
+      - "game_exit"
+
+data:
+  saveSlots: 3
+  maxSaveSizeKb: 128
+  leaderboardKey: "GAME_ID"
+
+security:
+  sandboxed: true
+  allowExternalUrls: false
+  allowEval: false

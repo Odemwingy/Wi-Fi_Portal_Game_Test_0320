@@ -112,6 +112,14 @@ The frontend container serves the passenger channel shell and uses route-level l
 - `http://127.0.0.1:8080/admin/channel`
 - `http://127.0.0.1:8080/admin/operations`
 
+On branch `codex/integrate-globe-test-games`, the frontend container also
+ships four imported static test packages:
+
+- `http://127.0.0.1:8080/games/globe-2048`
+- `http://127.0.0.1:8080/games/globe-chess`
+- `http://127.0.0.1:8080/games/globe-hextris`
+- `http://127.0.0.1:8080/games/globe-sudoku`
+
 ### Browser Smoke
 
 Install Playwright Chromium once:
@@ -189,3 +197,4 @@ These are local demo credentials for the current implementation of `/admin/chann
 - Compatibility, weak-network, and release-gate expectations are documented in [`docs/test-strategy.md`](./docs/test-strategy.md).
 - The 25-game candidate inventory, rollout waves, and acceptance matrix are documented in [`docs/game-rollout-plan.md`](./docs/game-rollout-plan.md).
 - The Spot the Difference Race research and implementation breakdown is documented in [`docs/spot-the-difference-race-plan.md`](./docs/spot-the-difference-race-plan.md).
+- The four imported static test packages and Docker delivery shape are documented in [`docs/globe-test-games-delivery.md`](./docs/globe-test-games-delivery.md).

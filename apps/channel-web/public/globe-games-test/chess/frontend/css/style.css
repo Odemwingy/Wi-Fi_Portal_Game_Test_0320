@@ -1,0 +1,241 @@
+/* 国际象棋样式 - 竖屏优化 */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #1a1a2e;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 10px;
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 头部 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f39c12;
+}
+
+.controls-top {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-small {
+    background: #16213e;
+    border: 1px solid #0f3460;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.btn-small:active {
+    background: #0f3460;
+}
+
+/* 游戏信息 */
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.player-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.player-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.captured-pieces {
+    font-size: 0.75rem;
+    color: #8892b0;
+    min-height: 1rem;
+}
+
+.turn-indicator {
+    background: #f39c12;
+    color: #1a1a2e;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.turn-indicator.black {
+    background: #2c3e50;
+    color: #fff;
+}
+
+/* 游戏容器 */
+.game-container {
+    display: flex;
+    justify-content: center;
+}
+
+.chess-board {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0;
+    border: 3px solid #2c3e50;
+    border-radius: 4px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 360px;
+    aspect-ratio: 1;
+}
+
+.square {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1.5rem, 6vw, 2.5rem);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+}
+
+.square.light {
+    background: #f0d9b5;
+}
+
+.square.dark {
+    background: #b58863;
+}
+
+.square.selected {
+    background: #f39c12 !important;
+}
+
+.square.valid-move {
+    background: #7b7 !important;
+}
+
+.square.last-move {
+    background: #cdd26a !important;
+}
+
+.square.check {
+    background: #e74c3c !important;
+}
+
+/* 棋子颜色 */
+.piece-white {
+    color: #fff;
+    text-shadow: 0 0 3px #000, 0 0 5px #000;
+}
+
+.piece-black {
+    color: #000;
+    text-shadow: 0 0 2px #fff;
+}
+
+/* 游戏状态 */
+.game-status {
+    text-align: center;
+    color: #8892b0;
+    font-size: 0.85rem;
+    min-height: 1.2rem;
+}
+
+/* 遮罩 */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.overlay.show {
+    display: flex;
+}
+
+.overlay-content {
+    text-align: center;
+    padding: 40px;
+    background: #16213e;
+    border-radius: 20px;
+}
+
+.overlay-content h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #f39c12;
+}
+
+.overlay-content p {
+    font-size: 1rem;
+    margin-bottom: 20px;
+    color: #8892b0;
+}
+
+.btn {
+    background: linear-gradient(135deg, #f39c12, #e74c3c);
+    border: none;
+    color: #fff;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn:active {
+    transform: scale(0.95);
+}
+
+/* 响应式 */
+@media (max-width: 360px) {
+    .header h1 {
+        font-size: 1.3rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        max-width: 450px;
+    }
+}

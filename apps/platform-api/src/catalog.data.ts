@@ -637,6 +637,106 @@ const packageMetadata = [
       emitsStructuredLogs: true,
       supportsTraceContext: true
     }
+  }),
+  gamePackageMetadataSchema.parse({
+    id: "globe-2048",
+    name: "2048",
+    version: "1.0.0",
+    frontend: {
+      route: "/games/globe-2048",
+      assetsPath: "/opt/channel-web/globe-games-test/2048/frontend"
+    },
+    server: {
+      image: "registry.local/channel-web-static:1.0.0",
+      port: 8113
+    },
+    realtime: {
+      protocol: "sse"
+    },
+    dependencies: [],
+    capabilities: ["single-player", "leaderboard"],
+    healthcheck: {
+      path: "/health"
+    },
+    observability: {
+      emitsStructuredLogs: false,
+      supportsTraceContext: false
+    }
+  }),
+  gamePackageMetadataSchema.parse({
+    id: "globe-chess",
+    name: "国际象棋",
+    version: "1.0.0",
+    frontend: {
+      route: "/games/globe-chess",
+      assetsPath: "/opt/channel-web/globe-games-test/chess/frontend"
+    },
+    server: {
+      image: "registry.local/channel-web-static:1.0.0",
+      port: 8114
+    },
+    realtime: {
+      protocol: "sse"
+    },
+    dependencies: [],
+    capabilities: ["single-player", "leaderboard"],
+    healthcheck: {
+      path: "/health"
+    },
+    observability: {
+      emitsStructuredLogs: false,
+      supportsTraceContext: false
+    }
+  }),
+  gamePackageMetadataSchema.parse({
+    id: "globe-hextris",
+    name: "六边形俄罗斯方块",
+    version: "1.0.0",
+    frontend: {
+      route: "/games/globe-hextris",
+      assetsPath: "/opt/channel-web/globe-games-test/hextris/frontend"
+    },
+    server: {
+      image: "registry.local/channel-web-static:1.0.0",
+      port: 8115
+    },
+    realtime: {
+      protocol: "sse"
+    },
+    dependencies: [],
+    capabilities: ["single-player", "leaderboard"],
+    healthcheck: {
+      path: "/health"
+    },
+    observability: {
+      emitsStructuredLogs: false,
+      supportsTraceContext: false
+    }
+  }),
+  gamePackageMetadataSchema.parse({
+    id: "globe-sudoku",
+    name: "数独",
+    version: "1.0.0",
+    frontend: {
+      route: "/games/globe-sudoku",
+      assetsPath: "/opt/channel-web/globe-games-test/sudoku/frontend"
+    },
+    server: {
+      image: "registry.local/channel-web-static:1.0.0",
+      port: 8116
+    },
+    realtime: {
+      protocol: "sse"
+    },
+    dependencies: [],
+    capabilities: ["single-player", "leaderboard"],
+    healthcheck: {
+      path: "/health"
+    },
+    observability: {
+      emitsStructuredLogs: false,
+      supportsTraceContext: false
+    }
   })
 ];
 
@@ -795,6 +895,14 @@ function getBaseCategories(gameId: string) {
     case "skyline-defense-lite":
     case "crew-coordination":
       return ["Multiplayer", "Strategy", "Featured"];
+    case "globe-2048":
+      return ["Single Player", "Puzzle", "Lab"];
+    case "globe-chess":
+      return ["Single Player", "Strategy", "Lab"];
+    case "globe-hextris":
+      return ["Single Player", "Reaction", "Lab"];
+    case "globe-sudoku":
+      return ["Single Player", "Puzzle", "Lab"];
     default:
       return ["Single Player", "Puzzle", "Relaxed"];
   }
@@ -850,6 +958,14 @@ function getBaseDescription(gameId: string) {
       return "Low-frequency tower-defense duels where players deploy the right skyline module to the right district and fight for sector control.";
     case "crew-coordination":
       return "Coordinate cockpit, cabin, and galley relay tasks with 2-4 players to push the mission score over the target.";
+    case "globe-2048":
+      return "Imported static 2048 test package bundled into channel-web for final delivery validation.";
+    case "globe-chess":
+      return "Imported static chess test package used to verify larger DOM-heavy single-player pages inside the portal shell.";
+    case "globe-hextris":
+      return "Imported static Hextris test package used to validate canvas-based single-player delivery through the existing launcher.";
+    case "globe-sudoku":
+      return "Imported static sudoku test package used to validate touch input and mobile-friendly single-player deployment.";
     default:
       return "Single-player puzzle loops optimized for short sessions.";
   }

@@ -33,7 +33,7 @@ describe("AppService", () => {
   it("returns a channel catalog backed by managed package metadata", async () => {
     const catalog = await service.getCatalog(startTrace(), "MU", "zh-CN");
 
-    expect(catalog).toHaveLength(25);
+    expect(catalog).toHaveLength(29);
     expect(catalog.map((entry) => entry.game_id)).toEqual([
       "quiz-duel",
       "airline-trivia-teams",
@@ -59,7 +59,11 @@ describe("AppService", () => {
       "puzzle-race-grid",
       "seat-upgrade-shuffle",
       "skyline-defense-lite",
-      "crew-coordination"
+      "crew-coordination",
+      "globe-2048",
+      "globe-chess",
+      "globe-hextris",
+      "globe-sudoku"
     ]);
   });
 });

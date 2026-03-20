@@ -801,6 +801,27 @@ textarea:focus {
   background: rgba(255, 255, 255, 0.96);
 }
 
+.static-package-note-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.static-package-frame-shell {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(236, 243, 247, 0.82));
+}
+
+.static-package-frame {
+  width: 100%;
+  min-height: 920px;
+  border: 0;
+  background: white;
+}
+
 .gomoku-layout {
   display: grid;
   gap: 1.25rem;

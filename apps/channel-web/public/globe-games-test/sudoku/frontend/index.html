@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>数独</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>数独</h1>
+            <div class="controls-top">
+                <select id="difficulty">
+                    <option value="easy">简单</option>
+                    <option value="medium">中等</option>
+                    <option value="hard">困难</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <span id="timer">00:00</span>
+            <span id="mistakes">错误: 0/3</span>
+        </div>
+        
+        <div class="game-container">
+            <div class="sudoku-grid" id="grid">
+                <!-- 81个格子将由JS生成 -->
+            </div>
+        </div>
+        
+        <div class="number-pad" id="numpad">
+            <button class="num-btn" data-num="1">1</button>
+            <button class="num-btn" data-num="2">2</button>
+            <button class="num-btn" data-num="3">3</button>
+            <button class="num-btn" data-num="4">4</button>
+            <button class="num-btn" data-num="5">5</button>
+            <button class="num-btn" data-num="6">6</button>
+            <button class="num-btn" data-num="7">7</button>
+            <button class="num-btn" data-num="8">8</button>
+            <button class="num-btn" data-num="9">9</button>
+            <button class="num-btn erase" data-num="0">✕</button>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" id="newGame">新游戏</button>
+            <button class="btn secondary" id="hint">提示</button>
+        </div>
+        
+        <div class="overlay" id="gameOverlay">
+            <div class="overlay-content">
+                <h2 id="overlayTitle">恭喜！</h2>
+                <p id="overlayMessage">完成时间: 00:00</p>
+                <button class="btn" id="retryBtn">再来一局</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../../sdk/mock-sdk.js"></script>
+    <script src="js/sudoku.js"></script>
+</body>
+</html>

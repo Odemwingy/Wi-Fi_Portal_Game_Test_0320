@@ -62,6 +62,22 @@ const routes: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
     () => import("./FlightPathPuzzlerPackagePage"),
     (module) => module.FlightPathPuzzlerPackagePage
   ),
+  "/games/globe-2048": loadRoute(
+    () => import("./Globe2048PackagePage"),
+    (module) => module.Globe2048PackagePage
+  ),
+  "/games/globe-chess": loadRoute(
+    () => import("./GlobeChessPackagePage"),
+    (module) => module.GlobeChessPackagePage
+  ),
+  "/games/globe-hextris": loadRoute(
+    () => import("./GlobeHextrisPackagePage"),
+    (module) => module.GlobeHextrisPackagePage
+  ),
+  "/games/globe-sudoku": loadRoute(
+    () => import("./GlobeSudokuPackagePage"),
+    (module) => module.GlobeSudokuPackagePage
+  ),
   "/games/luggage-logic": loadRoute(
     () => import("./LuggageLogicPackagePage"),
     (module) => module.LuggageLogicPackagePage

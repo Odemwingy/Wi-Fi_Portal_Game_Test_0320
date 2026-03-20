@@ -73,3 +73,40 @@ test("admin operations page can log in and load rules and airline controls", asy
     })
   ).toBeVisible();
 });
+
+test("imported globe static package routes load inside the channel shell", async ({
+  page
+}) => {
+  const routes = [
+    {
+      heading: "2048",
+      path: "/games/globe-2048"
+    },
+    {
+      heading: "国际象棋",
+      path: "/games/globe-chess"
+    },
+    {
+      heading: "六边形俄罗斯方块",
+      path: "/games/globe-hextris"
+    },
+    {
+      heading: "数独",
+      path: "/games/globe-sudoku"
+    }
+  ];
+
+  for (const route of routes) {
+    await page.goto(route.path);
+
+    await expect(
+      page.getByRole("heading", {
+        exact: true,
+        name: route.heading
+      })
+    ).toBeVisible();
+    await expect(
+      page.locator("iframe[title*='static package']")
+    ).toBeVisible();
+  }
+});

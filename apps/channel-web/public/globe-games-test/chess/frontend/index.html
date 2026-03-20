@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>国际象棋</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>国际象棋</h1>
+            <div class="controls-top">
+                <button class="btn-small" id="newGame">新游戏</button>
+                <button class="btn-small" id="undo">悔棋</button>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <div class="player-info" id="blackInfo">
+                <span class="player-name">黑方</span>
+                <span class="captured-pieces" id="blackCaptured"></span>
+            </div>
+            <div class="turn-indicator" id="turnIndicator">白方走棋</div>
+            <div class="player-info" id="whiteInfo">
+                <span class="player-name">白方</span>
+                <span class="captured-pieces" id="whiteCaptured"></span>
+            </div>
+        </div>
+        
+        <div class="game-container">
+            <div class="chess-board" id="board">
+                <!-- 64个格子将由JS生成 -->
+            </div>
+        </div>
+        
+        <div class="game-status" id="status">点击棋子开始游戏</div>
+        
+        <div class="overlay" id="gameOverlay">
+            <div class="overlay-content">
+                <h2 id="overlayTitle">游戏结束</h2>
+                <p id="overlayMessage">白方获胜</p>
+                <button class="btn" id="retryBtn">再来一局</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../../sdk/mock-sdk.js"></script>
+    <script src="js/chess.js"></script>
+</body>
+</html>

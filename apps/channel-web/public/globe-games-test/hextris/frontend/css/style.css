@@ -1,0 +1,175 @@
+/* 六边形俄罗斯方块样式 - 竖屏优化 */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0a0a1a;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 10px;
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 头部 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #e74c3c, #9b59b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.score-container {
+    display: flex;
+    gap: 8px;
+}
+
+.score-box {
+    background: #1a1a2e;
+    border-radius: 8px;
+    padding: 6px 12px;
+    text-align: center;
+    min-width: 60px;
+}
+
+.score-label {
+    display: block;
+    font-size: 0.65rem;
+    color: #8892b0;
+    text-transform: uppercase;
+}
+
+.score-value {
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #e74c3c;
+}
+
+/* 游戏信息 */
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    color: #8892b0;
+    font-size: 0.85rem;
+}
+
+/* 游戏容器 */
+.game-container {
+    position: relative;
+    background: #0f0f23;
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 1;
+}
+
+#gameCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* 遮罩 */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(10, 10, 26, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.overlay.hide {
+    display: none;
+}
+
+.overlay-content {
+    text-align: center;
+    padding: 30px;
+}
+
+.overlay-content h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #e74c3c;
+}
+
+.overlay-content p {
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    color: #8892b0;
+}
+
+.btn {
+    background: linear-gradient(135deg, #e74c3c, #9b59b6);
+    border: none;
+    color: #fff;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.btn:active {
+    transform: scale(0.95);
+}
+
+/* 控制提示 */
+.controls-hint {
+    text-align: center;
+    color: #8892b0;
+    font-size: 0.8rem;
+}
+
+/* 响应式 */
+@media (max-width: 360px) {
+    .header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .score-box {
+        padding: 5px 10px;
+        min-width: 50px;
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        max-width: 450px;
+    }
+}

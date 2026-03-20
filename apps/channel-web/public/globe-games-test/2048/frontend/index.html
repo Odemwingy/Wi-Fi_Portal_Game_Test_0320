@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2048</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>2048</h1>
+            <div class="score-container">
+                <div class="score-box">
+                    <span class="score-label">分数</span>
+                    <span class="score-value" id="score">0</span>
+                </div>
+                <div class="score-box">
+                    <span class="score-label">最高</span>
+                    <span class="score-value" id="best">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <p>合并数字，达到 <strong>2048</strong>！</p>
+        </div>
+        
+        <div class="game-container">
+            <div class="grid-container" id="grid">
+                <!-- 16个格子将由JS生成 -->
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" id="newGame">新游戏</button>
+        </div>
+        
+        <div class="overlay" id="gameOverlay">
+            <div class="overlay-content">
+                <h2 id="overlayTitle">游戏结束</h2>
+                <p id="overlayScore">得分: 0</p>
+                <button class="btn" id="retryBtn">再来一局</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../../sdk/mock-sdk.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>

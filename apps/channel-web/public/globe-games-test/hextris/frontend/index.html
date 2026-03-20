@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>六边形俄罗斯方块</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Hextris</h1>
+            <div class="score-container">
+                <div class="score-box">
+                    <span class="score-label">分数</span>
+                    <span class="score-value" id="score">0</span>
+                </div>
+                <div class="score-box">
+                    <span class="score-label">最高</span>
+                    <span class="score-value" id="best">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <span id="level">等级: 1</span>
+            <span id="lines">消行: 0</span>
+        </div>
+        
+        <div class="game-container">
+            <canvas id="gameCanvas"></canvas>
+            <div class="overlay" id="startOverlay">
+                <div class="overlay-content">
+                    <h2>六边形俄罗斯方块</h2>
+                    <p>旋转六边形以匹配下落的方块颜色</p>
+                    <button class="btn" id="startBtn">开始游戏</button>
+                </div>
+            </div>
+            <div class="overlay hide" id="gameOverlay">
+                <div class="overlay-content">
+                    <h2>游戏结束</h2>
+                    <p id="finalScore">得分: 0</p>
+                    <button class="btn" id="retryBtn">再来一局</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls-hint">
+            <p>🖱️ 点击或滑动旋转六边形</p>
+        </div>
+    </div>
+    
+    <script src="../../sdk/mock-sdk.js"></script>
+    <script src="js/hextris.js"></script>
+</body>
+</html>
