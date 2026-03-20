@@ -1,6 +1,28 @@
-# Wi-Fi Portal Game Channel
+# Wi-Fi Portal Game Test 0320
 
-Monorepo scaffold for the onboard Wi-Fi Portal Game Channel platform.
+Dedicated test-delivery monorepo for the onboard Wi-Fi Portal game stack and
+the four imported `globe-games-test` static packages.
+
+## Quick Start
+
+```bash
+pnpm install
+pnpm exec playwright install chromium
+pnpm infra:stack:up
+```
+
+Open:
+
+- `http://127.0.0.1:8080/`
+- `http://127.0.0.1:8080/games/globe-2048`
+- `http://127.0.0.1:8080/games/globe-chess`
+- `http://127.0.0.1:8080/games/globe-hextris`
+- `http://127.0.0.1:8080/games/globe-sudoku`
+
+For the full handoff and acceptance flow, see:
+
+- [`docs/globe-test-games-delivery.md`](./docs/globe-test-games-delivery.md)
+- [`docs/test-acceptance-checklist.md`](./docs/test-acceptance-checklist.md)
 
 ## Workspace Layout
 
@@ -112,8 +134,7 @@ The frontend container serves the passenger channel shell and uses route-level l
 - `http://127.0.0.1:8080/admin/channel`
 - `http://127.0.0.1:8080/admin/operations`
 
-On branch `codex/integrate-globe-test-games`, the frontend container also
-ships four imported static test packages:
+This test-delivery repository also ships four imported static test packages:
 
 - `http://127.0.0.1:8080/games/globe-2048`
 - `http://127.0.0.1:8080/games/globe-chess`
@@ -147,6 +168,12 @@ Run the full local release gate:
 
 ```bash
 pnpm release:check
+```
+
+or the repository-specific alias:
+
+```bash
+pnpm delivery:check
 ```
 
 This sequentially runs:
@@ -198,3 +225,4 @@ These are local demo credentials for the current implementation of `/admin/chann
 - The 25-game candidate inventory, rollout waves, and acceptance matrix are documented in [`docs/game-rollout-plan.md`](./docs/game-rollout-plan.md).
 - The Spot the Difference Race research and implementation breakdown is documented in [`docs/spot-the-difference-race-plan.md`](./docs/spot-the-difference-race-plan.md).
 - The four imported static test packages and Docker delivery shape are documented in [`docs/globe-test-games-delivery.md`](./docs/globe-test-games-delivery.md).
+- The formal acceptance checklist is documented in [`docs/test-acceptance-checklist.md`](./docs/test-acceptance-checklist.md).

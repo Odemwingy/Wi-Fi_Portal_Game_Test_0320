@@ -1,12 +1,8 @@
 # Globe Test Games Delivery
 
-This branch integrates four external static test games from
+This repository integrates four external static test games from
 [`Odemwingy/globe-games-test`](https://github.com/Odemwingy/globe-games-test)
 into the existing Wi-Fi Portal delivery stack.
-
-## Branch
-
-- `codex/integrate-globe-test-games`
 
 ## Included Test Games
 
@@ -46,9 +42,12 @@ Health checks:
 - `http://127.0.0.1:3000/api/health`
 - `http://127.0.0.1:3000/api/health/ready`
 
+For a full acceptance runbook, see
+[`docs/test-acceptance-checklist.md`](./test-acceptance-checklist.md).
+
 ## Notes
 
 - The four imported games keep their original static frontend logic.
 - Their local save / leaderboard behavior remains inside the imported mock SDK.
-- This branch extends the catalog from `25` to `29` entries for integration
+- This repository extends the catalog from `25` to `29` entries for integration
   testing and final packaging validation.

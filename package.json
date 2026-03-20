@@ -8,6 +8,7 @@
     "dev:api": "pnpm --filter @wifi-portal/platform-api dev",
     "dev:api:redis": "STATE_STORE_BACKEND=redis REDIS_URL=redis://127.0.0.1:6379 pnpm --filter @wifi-portal/platform-api dev",
     "dev:web": "pnpm --filter @wifi-portal/channel-web dev",
+    "delivery:check": "pnpm release:check",
     "infra:backend:up": "docker compose up -d redis platform-api",
     "infra:backend:down": "docker compose stop platform-api redis",
     "infra:stack:up": "docker compose up -d redis platform-api channel-web",
