@@ -17,9 +17,12 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
-    "test:smoke": "node scripts/platform-smoke.mjs"
+    "test:smoke": "node scripts/platform-smoke.mjs",
+    "test:e2e": "playwright test",
+    "test:e2e:stack": "node scripts/run-e2e-stack.mjs"
   },
   "devDependencies": {
+    "@playwright/test": "^1.53.2",
     "@eslint/js": "^9.23.0",
     "@types/node": "^24.0.0",
     "eslint": "^9.23.0",

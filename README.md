@@ -34,6 +34,8 @@ pnpm infra:stack:down
 pnpm infra:redis:up
 pnpm dev:api:redis
 pnpm test:smoke
+pnpm test:e2e
+pnpm test:e2e:stack
 ```
 
 ## Local State Store Modes
@@ -89,6 +91,7 @@ The API container is wired to Redis by default and exposes:
 - `WS  http://127.0.0.1:3000/ws/game-room`
 
 The default environment template is [`.env.example`](./.env.example). The Redis container definition lives in [`docker-compose.yml`](./docker-compose.yml).
+`platform-api` enables CORS for the local Vite (`5173`) and Docker/Nginx (`8080`) origins by default; override with `CORS_ALLOWED_ORIGINS` when needed.
 
 ### Docker Compose Full Stack
 
@@ -107,6 +110,27 @@ The frontend container serves the passenger channel shell and uses route-level l
 - `http://127.0.0.1:8080/`
 - `http://127.0.0.1:8080/admin/channel`
 - `http://127.0.0.1:8080/admin/operations`
+
+### Browser Smoke
+
+Install Playwright Chromium once:
+
+```bash
+pnpm exec playwright install chromium
+```
+
+Run against an existing stack:
+
+```bash
+pnpm test:e2e
+```
+
+Or let the wrapper boot Docker Compose, wait for health, run the browser smoke,
+and stop the stack afterwards:
+
+```bash
+pnpm test:e2e:stack
+```
 
 ## Delivery Notes
 

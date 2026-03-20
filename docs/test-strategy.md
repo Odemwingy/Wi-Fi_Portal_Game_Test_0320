@@ -49,6 +49,23 @@ The smoke script validates:
 - `quiz-duel` event relay and game-state broadcast
 - disconnect and reconnect flow
 
+### Browser Smoke
+
+Run:
+
+```bash
+pnpm exec playwright install chromium
+pnpm test:e2e:stack
+```
+
+The browser smoke validates:
+
+- passenger homepage bootstrap and dashboard render
+- direct route access via nginx SPA fallback
+- admin channel login and published-content controls
+- admin operations login and rules / airline config surfaces
+- cross-origin browser access from `channel-web` (`:8080`) to `platform-api` (`:3000`)
+
 ## Browser and WebView Compatibility Matrix
 
 Release candidates should be checked on at least:
@@ -107,5 +124,6 @@ A build is release-ready for current scope only when:
 - `pnpm test`
 - `pnpm build`
 - `pnpm test:smoke`
+- `pnpm test:e2e:stack`
 
 all pass, and the manual compatibility matrix has no unresolved P0 findings.
