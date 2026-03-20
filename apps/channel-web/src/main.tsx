@@ -19,6 +19,7 @@ import { SeatMapStrategyPackagePage } from "./SeatMapStrategyPackagePage";
 import { SignalScramblePackagePage } from "./SignalScramblePackagePage";
 import { SpotTheDifferenceRacePackagePage } from "./SpotTheDifferenceRacePackagePage";
 import { TapBeatBattlePackagePage } from "./TapBeatBattlePackagePage";
+import { WindowViewMemoryPackagePage } from "./WindowViewMemoryPackagePage";
 import { WordRallyPackagePage } from "./WordRallyPackagePage";
 import "./styles.css";
 
@@ -46,6 +47,8 @@ const RootComponent =
         ? LuggageLogicPackagePage
       : pathname === "/games/meal-cart-match"
         ? MealCartMatchPackagePage
+      : pathname === "/games/window-view-memory"
+        ? WindowViewMemoryPackagePage
       : pathname === "/games/mini-gomoku"
         ? MiniGomokuPackagePage
       : pathname === "/games/seat-map-strategy"

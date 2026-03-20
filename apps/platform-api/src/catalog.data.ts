@@ -387,6 +387,31 @@ const packageMetadata = [
       emitsStructuredLogs: true,
       supportsTraceContext: true
     }
+  }),
+  gamePackageMetadataSchema.parse({
+    id: "window-view-memory",
+    name: "Window View Memory",
+    version: "1.0.0",
+    frontend: {
+      route: "/games/window-view-memory",
+      assetsPath: "/opt/games/window-view-memory/frontend"
+    },
+    server: {
+      image: "registry.local/window-view-memory-server:1.0.0",
+      port: 8103
+    },
+    realtime: {
+      protocol: "sse"
+    },
+    dependencies: [],
+    capabilities: ["single-player", "points-reporting"],
+    healthcheck: {
+      path: "/health"
+    },
+    observability: {
+      emitsStructuredLogs: true,
+      supportsTraceContext: true
+    }
   })
 ];
 
@@ -526,6 +551,8 @@ function getBaseCategories(gameId: string) {
       return ["Single Player", "Puzzle", "Featured"];
     case "meal-cart-match":
       return ["Single Player", "Memory", "Featured"];
+    case "window-view-memory":
+      return ["Single Player", "Memory", "Relaxed"];
     default:
       return ["Single Player", "Puzzle", "Relaxed"];
   }
@@ -561,6 +588,8 @@ function getBaseDescription(gameId: string) {
       return "Single-player baggage sorting loops designed for quick cabin sessions.";
     case "meal-cart-match":
       return "Single-player pair matching loops built around meal-cart memory and catering cues.";
+    case "window-view-memory":
+      return "Short scenic recall drills where passengers memorize cabin window views and replay them from memory.";
     default:
       return "Single-player puzzle loops optimized for short sessions.";
   }
