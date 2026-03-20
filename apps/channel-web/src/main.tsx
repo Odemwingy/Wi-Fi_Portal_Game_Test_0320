@@ -5,6 +5,7 @@ import { AdminChannelPage } from "./AdminChannelPage";
 import { AdminOperationsPage } from "./AdminOperationsPage";
 import { App } from "./App";
 import { BaggageSortShowdownPackagePage } from "./BaggageSortShowdownPackagePage";
+import { CabinCardClashPackagePage } from "./CabinCardClashPackagePage";
 import { CabinPuzzlePackagePage } from "./CabinPuzzlePackagePage";
 import { MemoryMatchDuelPackagePage } from "./MemoryMatchDuelPackagePage";
 import { MiniGomokuPackagePage } from "./MiniGomokuPackagePage";
@@ -27,6 +28,8 @@ const RootComponent =
       ? PortalHostPage
     : pathname === "/games/quiz-duel"
       ? QuizDuelPackagePage
+      : pathname === "/games/cabin-card-clash"
+        ? CabinCardClashPackagePage
       : pathname === "/games/baggage-sort-showdown"
         ? BaggageSortShowdownPackagePage
     : pathname === "/games/cabin-puzzle"

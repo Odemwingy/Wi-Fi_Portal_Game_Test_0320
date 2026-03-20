@@ -39,6 +39,31 @@ const packageMetadata = [
     }
   }),
   gamePackageMetadataSchema.parse({
+    id: "cabin-card-clash",
+    name: "Cabin Card Clash",
+    version: "1.0.0",
+    frontend: {
+      route: "/games/cabin-card-clash",
+      assetsPath: "/opt/games/cabin-card-clash/frontend"
+    },
+    server: {
+      image: "registry.local/cabin-card-clash-server:1.0.0",
+      port: 8098
+    },
+    realtime: {
+      protocol: "websocket"
+    },
+    dependencies: ["redis"],
+    capabilities: ["multiplayer", "leaderboard", "invite-code", "points-reporting"],
+    healthcheck: {
+      path: "/health"
+    },
+    observability: {
+      emitsStructuredLogs: true,
+      supportsTraceContext: true
+    }
+  }),
+  gamePackageMetadataSchema.parse({
     id: "baggage-sort-showdown",
     name: "Baggage Sort Showdown",
     version: "1.0.0",
@@ -375,6 +400,8 @@ function getBaseCategories(gameId: string) {
   switch (gameId) {
     case "quiz-duel":
       return ["Multiplayer", "Trivia", "Featured"];
+    case "cabin-card-clash":
+      return ["Multiplayer", "Cards", "Featured"];
     case "baggage-sort-showdown":
       return ["Multiplayer", "Reaction", "Featured"];
     case "word-rally":
@@ -400,6 +427,8 @@ function getBaseDescription(gameId: string) {
   switch (gameId) {
     case "quiz-duel":
       return "Fast head-to-head quiz battles for onboard LAN play.";
+    case "cabin-card-clash":
+      return "A deliberately lightweight two-player cabin card duel with fast round resolution.";
     case "baggage-sort-showdown":
       return "Shared baggage queue reaction battles where the first correct classification wins the bag.";
     case "word-rally":

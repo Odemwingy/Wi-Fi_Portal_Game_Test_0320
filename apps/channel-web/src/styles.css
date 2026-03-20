@@ -1024,6 +1024,104 @@ textarea:focus {
   margin: 0;
 }
 
+.card-clash-layout {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.9fr);
+}
+
+.card-clash-board {
+  display: grid;
+  gap: 1rem;
+}
+
+.card-clash-table {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.card-clash-slot {
+  background: rgba(15, 23, 42, 0.42);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 20px;
+  display: grid;
+  gap: 0.4rem;
+  padding: 1rem;
+}
+
+.card-clash-slot span {
+  color: rgba(148, 163, 184, 0.85);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.card-clash-slot p {
+  color: rgba(226, 232, 240, 0.78);
+  margin: 0;
+}
+
+.card-clash-hand {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.card-option {
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.92);
+  border: 0;
+  border-radius: 22px;
+  color: #102030;
+  cursor: pointer;
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem;
+  text-align: left;
+  transition: transform 140ms ease, box-shadow 140ms ease, filter 140ms ease;
+}
+
+.card-option:hover:enabled {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 22px rgba(23, 49, 65, 0.12);
+}
+
+.card-option span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.card-option p {
+  color: rgba(23, 49, 65, 0.72);
+  margin: 0;
+}
+
+.card-option.accent-sea {
+  background: linear-gradient(180deg, rgba(115, 198, 220, 0.22), rgba(255, 255, 255, 0.96));
+}
+
+.card-option.accent-amber {
+  background: linear-gradient(180deg, rgba(245, 191, 66, 0.22), rgba(255, 255, 255, 0.96));
+}
+
+.card-option.accent-mint {
+  background: linear-gradient(180deg, rgba(115, 221, 179, 0.2), rgba(255, 255, 255, 0.96));
+}
+
+.card-option.accent-rose {
+  background: linear-gradient(180deg, rgba(248, 113, 113, 0.2), rgba(255, 255, 255, 0.96));
+}
+
+.card-option.is-used,
+.card-option:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.2);
+  opacity: 0.55;
+}
+
 .signal-grid {
   display: grid;
   gap: 0.85rem;
@@ -1522,6 +1620,7 @@ textarea:focus {
   .hero-panel,
   .package-hero,
   .lobby-layout,
+  .card-clash-layout,
   .gomoku-layout,
   .seat-map-layout,
   .signal-layout,
@@ -1534,6 +1633,11 @@ textarea:focus {
   }
 
   .signal-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .card-clash-table,
+  .card-clash-hand {
     grid-template-columns: 1fr 1fr;
   }
 
@@ -1582,6 +1686,8 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 
+  .card-clash-table,
+  .card-clash-hand,
   .baggage-lanes {
     grid-template-columns: 1fr;
   }

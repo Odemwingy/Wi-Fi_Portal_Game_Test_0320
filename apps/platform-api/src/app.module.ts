@@ -21,6 +21,7 @@ import {
 } from "./airline-points.adapter";
 import { ChannelContentController } from "./channel-content.controller";
 import { ChannelContentService } from "./channel-content.service";
+import { CabinCardClashAdapter } from "./game-adapters/cabin-card-clash.adapter";
 import { BaggageSortShowdownAdapter } from "./game-adapters/baggage-sort-showdown.adapter";
 import { MiniGomokuAdapter } from "./game-adapters/mini-gomoku.adapter";
 import { MemoryMatchDuelAdapter } from "./game-adapters/memory-match-duel.adapter";
@@ -75,6 +76,10 @@ import {
   AdminSessionRepository,
   StateStoreAdminSessionRepository
 } from "./repositories/admin-session.repository";
+import {
+  CabinCardClashStateRepository,
+  StateStoreCabinCardClashStateRepository
+} from "./repositories/cabin-card-clash-state.repository";
 import {
   ChannelContentRepository,
   StateStoreChannelContentRepository
@@ -158,6 +163,7 @@ import { TraceMiddleware } from "./trace.middleware";
     RewardsService,
     RoomService,
     GameRuntimeService,
+    CabinCardClashAdapter,
     BaggageSortShowdownAdapter,
     MiniGomokuAdapter,
     MemoryMatchDuelAdapter,
@@ -207,6 +213,10 @@ import { TraceMiddleware } from "./trace.middleware";
     {
       provide: RoomRepository,
       useClass: StateStoreRoomRepository
+    },
+    {
+      provide: CabinCardClashStateRepository,
+      useClass: StateStoreCabinCardClashStateRepository
     },
     {
       provide: BaggageSortShowdownStateRepository,

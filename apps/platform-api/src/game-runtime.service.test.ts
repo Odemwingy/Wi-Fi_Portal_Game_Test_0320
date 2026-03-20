@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { startTrace } from "@wifi-portal/shared-observability";
 
+import { CabinCardClashAdapter } from "./game-adapters/cabin-card-clash.adapter";
 import { BaggageSortShowdownAdapter } from "./game-adapters/baggage-sort-showdown.adapter";
 import { MiniGomokuAdapter } from "./game-adapters/mini-gomoku.adapter";
 import { MemoryMatchDuelAdapter } from "./game-adapters/memory-match-duel.adapter";
@@ -11,6 +12,7 @@ import { SignalScrambleAdapter } from "./game-adapters/signal-scramble.adapter";
 import { SpotTheDifferenceRaceAdapter } from "./game-adapters/spot-the-difference-race.adapter";
 import { WordRallyAdapter } from "./game-adapters/word-rally.adapter";
 import { GameRuntimeService } from "./game-runtime.service";
+import { StateStoreCabinCardClashStateRepository } from "./repositories/cabin-card-clash-state.repository";
 import { StateStoreBaggageSortShowdownStateRepository } from "./repositories/baggage-sort-showdown-state.repository";
 import { InMemoryJsonStateStore } from "./repositories/json-state-store";
 import { StateStoreMiniGomokuStateRepository } from "./repositories/mini-gomoku-state.repository";
@@ -26,6 +28,9 @@ import { RoomService } from "./room.service";
 function createRuntime(stateStore: InMemoryJsonStateStore, roomService: RoomService) {
   return new GameRuntimeService(
     roomService,
+    new CabinCardClashAdapter(
+      new StateStoreCabinCardClashStateRepository(stateStore)
+    ),
     new BaggageSortShowdownAdapter(
       new StateStoreBaggageSortShowdownStateRepository(stateStore)
     ),
@@ -48,6 +53,119 @@ function createRuntime(stateStore: InMemoryJsonStateStore, roomService: RoomServ
 }
 
 describe("GameRuntimeService", () => {
+  it("supports cabin-card-clash rooms with turn-based round resolution", async () => {
+    const stateStore = new InMemoryJsonStateStore();
+    const roomService = new RoomService(new StateStoreRoomRepository(stateStore));
+    const runtime = createRuntime(stateStore, roomService);
+    const trace = startTrace();
+
+    const created = await roomService.createRoom(trace, {
+      game_id: "cabin-card-clash",
+      host_player_id: "host-1",
+      host_session_id: "sess-host-1",
+      max_players: 2,
+      room_name: "Cabin Card Clash Room"
+    });
+
+    await roomService.joinRoom(trace, {
+      player_id: "player-2",
+      room_id: created.room.room_id,
+      session_id: "sess-player-2"
+    });
+
+    const initialSnapshot = await runtime.getGameSnapshot(
+      trace,
+      "cabin-card-clash",
+      created.room.room_id
+    );
+    expect(initialSnapshot?.state.current_turn_player_id).toBe("host-1");
+    expect(initialSnapshot?.state.hands_by_player["host-1"]).toHaveLength(4);
+
+    await runtime.handleGameEvent(trace, {
+      gameId: "cabin-card-clash",
+      payload: { cardId: "host-window-kit" },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 1,
+      type: "game_event"
+    });
+
+    const roundOneSnapshot = await runtime.handleGameEvent(trace, {
+      gameId: "cabin-card-clash",
+      payload: { cardId: "guest-juice" },
+      playerId: "player-2",
+      roomId: created.room.room_id,
+      seq: 1,
+      type: "game_event"
+    });
+
+    expect(roundOneSnapshot?.state.current_round_number).toBe(2);
+    expect(roundOneSnapshot?.state.last_round_result).toMatchObject({
+      roundNumber: 1,
+      winnerPlayerIds: ["host-1"]
+    });
+
+    await runtime.handleGameEvent(trace, {
+      gameId: "cabin-card-clash",
+      payload: { cardId: "host-espresso" },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 2,
+      type: "game_event"
+    });
+    await runtime.handleGameEvent(trace, {
+      gameId: "cabin-card-clash",
+      payload: { cardId: "guest-neck-pill" },
+      playerId: "player-2",
+      roomId: created.room.room_id,
+      seq: 2,
+      type: "game_event"
+    });
+    await runtime.handleGameEvent(trace, {
+      gameId: "cabin-card-clash",
+      payload: { cardId: "guest-hot-meal" },
+      playerId: "player-2",
+      roomId: created.room.room_id,
+      seq: 3,
+      type: "game_event"
+    });
+    await runtime.handleGameEvent(trace, {
+      gameId: "cabin-card-clash",
+      payload: { cardId: "host-dessert" },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 3,
+      type: "game_event"
+    });
+
+    await runtime.handleGameEvent(trace, {
+      gameId: "cabin-card-clash",
+      payload: { cardId: "guest-fast-track" },
+      playerId: "player-2",
+      roomId: created.room.room_id,
+      seq: 4,
+      type: "game_event"
+    });
+    const finalSnapshot = await runtime.handleGameEvent(trace, {
+      gameId: "cabin-card-clash",
+      payload: { cardId: "host-mile-up" },
+      playerId: "host-1",
+      roomId: created.room.room_id,
+      seq: 4,
+      type: "game_event"
+    });
+
+    expect(finalSnapshot?.state.is_completed).toBe(true);
+    expect(finalSnapshot?.state.round_results).toHaveLength(4);
+    expect(finalSnapshot?.state.scores).toEqual({
+      "host-1": 6,
+      "player-2": 6
+    });
+    expect(finalSnapshot?.state.winner_player_ids).toEqual(["host-1", "player-2"]);
+
+    runtime.onModuleDestroy();
+  });
+
   it("supports baggage-sort-showdown rooms with shared bag progression and scoring", async () => {
     const stateStore = new InMemoryJsonStateStore();
     const roomService = new RoomService(new StateStoreRoomRepository(stateStore));
