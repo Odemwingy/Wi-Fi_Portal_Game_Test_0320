@@ -19,8 +19,8 @@
 - 已落地游戏数：`25 / 25`
 - 已落地联机游戏：`15`
 - 已落地单机游戏：`10`
-- GitHub open issues：仅剩 `#1` `#2` `#3` `#4` `#5` 五个 epic
-- GitHub Project：feature / task 基本已收敛为 `Done`
+- GitHub open issues：`0`
+- GitHub Project：feature / task / epic 已收敛为 `Done`
 
 已落地的联机游戏：
 
@@ -73,60 +73,19 @@
 - [test-strategy.md](/Users/kale/Documents/Wi-Fi%20Portal%20Plan/Wi-Fi_Portal_Game_Channel_0319/repo/docs/test-strategy.md)
 - [release-playbook.md](/Users/kale/Documents/Wi-Fi%20Portal%20Plan/Wi-Fi_Portal_Game_Channel_0319/repo/docs/release-playbook.md)
 
-## 5. Epic 对齐
+## 5. Epic 收口状态
 
-### Epic #1 首期产品基线与项目骨架
+5 个 epic 已全部关闭。对应收口范围如下：
 
-已完成：
-
-- monorepo / workspace / CI / TypeScript 工程栈
-- Game Package metadata / SDK / 启动器规范
-- rollout 计划与接入矩阵
-
-仍保留 open 的原因：
-
-- 它承担总揽性质，直到完整 25 款交付与首发收尾前不建议关闭
-
-### Epic #2 乘客端游戏频道体验
-
-已完成：
-
-- 频道首页、推荐位、专区、排序筛选
-- 多乘客视角模拟
-- package launcher
-- 多个独立 package 页面
-- 后台配置驱动的频道内容生效
-
-### Epic #3 统一游戏平台与联机底座
-
-已完成：
-
-- session bootstrap / channel config / catalog
-- 房间、邀请码、join by invite、ready、leave、reconnect、cleanup
-- WebSocket、snapshot、game_state、ack / error
-- 多个联机 adapter 与 runtime
-
-### Epic #4 积分、航司集成与后台运营
-
-已完成：
-
-- points / rewards / leaderboard / game events
-- points rules engine
-- airline sync / retry / outbox
-- admin auth / RBAC / audit
-- admin channel / admin operations
-
-### Epic #5 部署、观测与首发验收
-
-已完成：
-
-- Docker Compose
-- Redis backend
-- `/api/health` `/api/health/ready` `/api/metrics`
-- 结构化日志、trace、smoke、test strategy、release playbook
+- Epic #1：monorepo / workspace / SDK 合同 / rollout 计划
+- Epic #2：频道首页、推荐位、筛选、package launcher、后台内容驱动
+- Epic #3：BFF、房间、邀请码、WebSocket、重连、cleanup、多款联机 runtime
+- Epic #4：积分、权益、航司同步、后台登录、RBAC、审计、运营配置
+- Epic #5：Docker Compose、Redis、观测、smoke、browser smoke、发布与回滚手册
 
 ## 6. 下一步
 
 优先顺序建议：
 
-1. 对照 GitHub 上 5 个 epic 收口关闭条件，并做最终验收同步
+1. 以 `pnpm release:check` 为统一本地发布门禁
+2. 若进入实际上线阶段，再补真实部署环境参数、镜像发布和航司侧联调记录

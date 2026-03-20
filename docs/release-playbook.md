@@ -8,8 +8,8 @@
 
 ## Recommended Release Flow
 
-1. Run `pnpm lint && pnpm test && pnpm build`.
-2. Build and publish the `platform-api` image with the target tag.
+1. Run `pnpm release:check`.
+2. Build and publish the target images with the release tag.
 3. Update the deployment environment to the new image tag and `RELEASE_VERSION`.
 4. Start the stack with `docker compose up -d --build`.
 5. Verify:
@@ -18,6 +18,15 @@
    - `GET /api/metrics`
    - `WS /ws/game-room`
 6. Watch structured logs for `request.completed`, `room.*`, `realtime.*`, `points.*`, and `rewards.*`.
+
+`pnpm release:check` currently covers:
+
+- `pnpm lint`
+- `pnpm test`
+- `pnpm build`
+- Docker Compose startup for `redis`, `platform-api`, and `channel-web`
+- `pnpm test:smoke`
+- Playwright browser smoke for `/`, `/admin/channel`, and `/admin/operations`
 
 ## Rollback Rules
 

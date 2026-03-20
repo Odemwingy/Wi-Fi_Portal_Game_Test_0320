@@ -33,6 +33,7 @@ pnpm infra:stack:up
 pnpm infra:stack:down
 pnpm infra:redis:up
 pnpm dev:api:redis
+pnpm release:check
 pnpm test:smoke
 pnpm test:e2e
 pnpm test:e2e:stack
@@ -131,6 +132,26 @@ and stop the stack afterwards:
 ```bash
 pnpm test:e2e:stack
 ```
+
+### Release Gate
+
+Run the full local release gate:
+
+```bash
+pnpm release:check
+```
+
+This sequentially runs:
+
+- `pnpm lint`
+- `pnpm test`
+- `pnpm build`
+- Docker Compose startup for `redis`, `platform-api`, and `channel-web`
+- `pnpm test:smoke`
+- `pnpm exec playwright test`
+
+The release gate stops the Compose stack after validation, whether the check
+passes or fails.
 
 ## Delivery Notes
 

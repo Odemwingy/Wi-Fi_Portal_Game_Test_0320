@@ -54,6 +54,12 @@ The smoke script validates:
 Run:
 
 ```bash
+pnpm release:check
+```
+
+Or run the browser part only:
+
+```bash
 pnpm exec playwright install chromium
 pnpm test:e2e:stack
 ```
@@ -125,5 +131,6 @@ A build is release-ready for current scope only when:
 - `pnpm build`
 - `pnpm test:smoke`
 - `pnpm test:e2e:stack`
+- `pnpm release:check`
 
 all pass, and the manual compatibility matrix has no unresolved P0 findings.

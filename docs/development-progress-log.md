@@ -6,7 +6,7 @@
 - 当前分支：`main`
 - 当前基线：`25 / 25` 款游戏已实现
 - GitHub Project： [Wi-Fi Portal Game Channel Roadmap](https://github.com/users/Odemwingy/projects/2)
-- 当前 open issues：`#1` `#2` `#3` `#4` `#5`
+- 当前 open issues：`0`
 
 ## 最近阶段进展
 
@@ -16,6 +16,8 @@
 - 完成 Platform API、房间、WS、断线重连、房间回收
 - 完成 Redis 兼容状态存储与 Docker Compose 交付
 - 完成结构化日志、health / readiness / metrics、发布回滚文档
+- 完成 Docker full stack 前端容器交付
+- 完成 Playwright browser smoke、CI browser-smoke job、`pnpm release:check`
 
 ### 积分、权益与后台
 
@@ -51,15 +53,14 @@
 
 ## GitHub 同步状态
 
-- feature / task 层 issue 已基本关闭
-- Project 中对应条目已大面积收敛到 `Done`
-- 目前保留 open 的仅为 5 个 epic，用于承载总览进度和最终收口
+- feature / task / epic 层 issue 已全部关闭
+- Project 中对应条目已收敛到 `Done`
 
 ## 待继续推进
 
-- 25 款内容已全部实现，下一步转向 epic 收口、最终验收和项目结项记录
+- 25 款内容已全部实现，当前进入发布前强化和结项维护阶段
 
 ## 备注
 
-- 当前 `channel-web` 构建存在 Vite chunk size warning，但不阻塞构建通过
-- 后续若继续快速接入 package，建议在完成 25 款前暂不做大规模前端拆包优化
+- `channel-web` 已完成路由级懒加载，之前的大 chunk warning 已收敛
+- 当前推荐将 `pnpm release:check` 作为本地发版前统一执行入口
