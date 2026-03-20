@@ -337,6 +337,31 @@ const packageMetadata = [
       emitsStructuredLogs: true,
       supportsTraceContext: true
     }
+  }),
+  gamePackageMetadataSchema.parse({
+    id: "luggage-logic",
+    name: "Luggage Logic",
+    version: "1.0.0",
+    frontend: {
+      route: "/games/luggage-logic",
+      assetsPath: "/opt/games/luggage-logic/frontend"
+    },
+    server: {
+      image: "registry.local/luggage-logic-server:1.0.0",
+      port: 8101
+    },
+    realtime: {
+      protocol: "sse"
+    },
+    dependencies: [],
+    capabilities: ["single-player", "points-reporting"],
+    healthcheck: {
+      path: "/health"
+    },
+    observability: {
+      emitsStructuredLogs: true,
+      supportsTraceContext: true
+    }
   })
 ];
 
@@ -472,6 +497,8 @@ function getBaseCategories(gameId: string) {
       return ["Multiplayer", "Observation", "Featured"];
     case "runway-rush":
       return ["Single Player", "Reaction", "Featured"];
+    case "luggage-logic":
+      return ["Single Player", "Puzzle", "Featured"];
     default:
       return ["Single Player", "Puzzle", "Relaxed"];
   }
@@ -503,6 +530,8 @@ function getBaseDescription(gameId: string) {
       return "Low-frequency spot-claim racing built for cabin invite rooms.";
     case "runway-rush":
       return "Short reaction rounds for passengers who want a quick solo score chase.";
+    case "luggage-logic":
+      return "Single-player baggage sorting loops designed for quick cabin sessions.";
     default:
       return "Single-player puzzle loops optimized for short sessions.";
   }

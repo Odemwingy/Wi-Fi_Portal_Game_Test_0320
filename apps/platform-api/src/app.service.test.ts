@@ -33,7 +33,7 @@ describe("AppService", () => {
   it("returns a channel catalog backed by managed package metadata", async () => {
     const catalog = await service.getCatalog(startTrace(), "MU", "zh-CN");
 
-    expect(catalog).toHaveLength(13);
+    expect(catalog).toHaveLength(14);
     expect(catalog.map((entry) => entry.game_id)).toEqual([
       "quiz-duel",
       "airline-trivia-teams",
@@ -47,7 +47,8 @@ describe("AppService", () => {
       "seat-map-strategy",
       "signal-scramble",
       "spot-the-difference-race",
-      "runway-rush"
+      "runway-rush",
+      "luggage-logic"
     ]);
   });
 });

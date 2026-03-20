@@ -8,6 +8,7 @@ import { App } from "./App";
 import { BaggageSortShowdownPackagePage } from "./BaggageSortShowdownPackagePage";
 import { CabinCardClashPackagePage } from "./CabinCardClashPackagePage";
 import { CabinPuzzlePackagePage } from "./CabinPuzzlePackagePage";
+import { LuggageLogicPackagePage } from "./LuggageLogicPackagePage";
 import { MemoryMatchDuelPackagePage } from "./MemoryMatchDuelPackagePage";
 import { MiniGomokuPackagePage } from "./MiniGomokuPackagePage";
 import { PortalHostPage } from "./PortalHostPage";
@@ -40,6 +41,8 @@ const RootComponent =
         ? BaggageSortShowdownPackagePage
     : pathname === "/games/cabin-puzzle"
       ? CabinPuzzlePackagePage
+      : pathname === "/games/luggage-logic"
+        ? LuggageLogicPackagePage
       : pathname === "/games/mini-gomoku"
         ? MiniGomokuPackagePage
       : pathname === "/games/seat-map-strategy"
