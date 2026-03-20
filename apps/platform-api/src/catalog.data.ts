@@ -487,6 +487,31 @@ const packageMetadata = [
       emitsStructuredLogs: true,
       supportsTraceContext: true
     }
+  }),
+  gamePackageMetadataSchema.parse({
+    id: "aircraft-fix-kit",
+    name: "Aircraft Fix Kit",
+    version: "1.0.0",
+    frontend: {
+      route: "/games/aircraft-fix-kit",
+      assetsPath: "/opt/games/aircraft-fix-kit/frontend"
+    },
+    server: {
+      image: "registry.local/aircraft-fix-kit-server:1.0.0",
+      port: 8107
+    },
+    realtime: {
+      protocol: "sse"
+    },
+    dependencies: [],
+    capabilities: ["single-player", "points-reporting"],
+    healthcheck: {
+      path: "/health"
+    },
+    observability: {
+      emitsStructuredLogs: true,
+      supportsTraceContext: true
+    }
   })
 ];
 
@@ -634,6 +659,8 @@ function getBaseCategories(gameId: string) {
       return ["Single Player", "Puzzle", "Relaxed"];
     case "star-map-relax":
       return ["Single Player", "Relaxed", "Featured"];
+    case "aircraft-fix-kit":
+      return ["Single Player", "Puzzle", "Featured"];
     default:
       return ["Single Player", "Puzzle", "Relaxed"];
   }
@@ -677,6 +704,8 @@ function getBaseDescription(gameId: string) {
       return "Short solo sudoku loops built for quiet cabin play and low-distraction number filling.";
     case "star-map-relax":
       return "Low-pressure star tracing rounds designed for quiet night-flight relaxation and short solo sessions.";
+    case "aircraft-fix-kit":
+      return "Short solo repair loops where passengers restore cabin parts in the correct tool order.";
     default:
       return "Single-player puzzle loops optimized for short sessions.";
   }

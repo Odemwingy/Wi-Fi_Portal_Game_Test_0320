@@ -8,6 +8,7 @@ import { App } from "./App";
 import { BaggageSortShowdownPackagePage } from "./BaggageSortShowdownPackagePage";
 import { CabinCardClashPackagePage } from "./CabinCardClashPackagePage";
 import { CabinPuzzlePackagePage } from "./CabinPuzzlePackagePage";
+import { AircraftFixKitPackagePage } from "./AircraftFixKitPackagePage";
 import { FlightPathPuzzlerPackagePage } from "./FlightPathPuzzlerPackagePage";
 import { LuggageLogicPackagePage } from "./LuggageLogicPackagePage";
 import { MealCartMatchPackagePage } from "./MealCartMatchPackagePage";
@@ -34,6 +35,8 @@ const RootComponent =
       ? AdminOperationsPage
     : pathname === "/portal/host"
       ? PortalHostPage
+    : pathname === "/games/aircraft-fix-kit"
+      ? AircraftFixKitPackagePage
     : pathname === "/games/quiz-duel"
       ? QuizDuelPackagePage
       : pathname === "/games/airline-trivia-teams"
