@@ -14,6 +14,7 @@ pnpm infra:stack:up
 Open:
 
 - `http://127.0.0.1:8080/`
+- `http://127.0.0.1:8080/lab/channel`
 - `http://127.0.0.1:8080/games/globe-2048`
 - `http://127.0.0.1:8080/games/globe-chess`
 - `http://127.0.0.1:8080/games/globe-hextris`
