@@ -15,6 +15,7 @@ import { MemoryMatchDuelPackagePage } from "./MemoryMatchDuelPackagePage";
 import { MiniGomokuPackagePage } from "./MiniGomokuPackagePage";
 import { PortalHostPage } from "./PortalHostPage";
 import { QuizDuelPackagePage } from "./QuizDuelPackagePage";
+import { QuietCabinSudokuPackagePage } from "./QuietCabinSudokuPackagePage";
 import { RunwayRushPackagePage } from "./RunwayRushPackagePage";
 import { SeatMapStrategyPackagePage } from "./SeatMapStrategyPackagePage";
 import { SignalScramblePackagePage } from "./SignalScramblePackagePage";
@@ -44,6 +45,8 @@ const RootComponent =
         ? BaggageSortShowdownPackagePage
     : pathname === "/games/cabin-puzzle"
       ? CabinPuzzlePackagePage
+      : pathname === "/games/quiet-cabin-sudoku"
+        ? QuietCabinSudokuPackagePage
       : pathname === "/games/flight-path-puzzler"
         ? FlightPathPuzzlerPackagePage
       : pathname === "/games/luggage-logic"

@@ -437,6 +437,31 @@ const packageMetadata = [
       emitsStructuredLogs: true,
       supportsTraceContext: true
     }
+  }),
+  gamePackageMetadataSchema.parse({
+    id: "quiet-cabin-sudoku",
+    name: "Quiet Cabin Sudoku",
+    version: "1.0.0",
+    frontend: {
+      route: "/games/quiet-cabin-sudoku",
+      assetsPath: "/opt/games/quiet-cabin-sudoku/frontend"
+    },
+    server: {
+      image: "registry.local/quiet-cabin-sudoku-server:1.0.0",
+      port: 8105
+    },
+    realtime: {
+      protocol: "sse"
+    },
+    dependencies: [],
+    capabilities: ["single-player", "points-reporting"],
+    healthcheck: {
+      path: "/health"
+    },
+    observability: {
+      emitsStructuredLogs: true,
+      supportsTraceContext: true
+    }
   })
 ];
 
@@ -580,6 +605,8 @@ function getBaseCategories(gameId: string) {
       return ["Single Player", "Memory", "Relaxed"];
     case "flight-path-puzzler":
       return ["Single Player", "Strategy", "Relaxed"];
+    case "quiet-cabin-sudoku":
+      return ["Single Player", "Puzzle", "Relaxed"];
     default:
       return ["Single Player", "Puzzle", "Relaxed"];
   }
@@ -619,6 +646,8 @@ function getBaseDescription(gameId: string) {
       return "Short scenic recall drills where passengers memorize cabin window views and replay them from memory.";
     case "flight-path-puzzler":
       return "Solo route planning rounds where passengers choose the cleanest next waypoint for each cabin-friendly flight segment.";
+    case "quiet-cabin-sudoku":
+      return "Short solo sudoku loops built for quiet cabin play and low-distraction number filling.";
     default:
       return "Single-player puzzle loops optimized for short sessions.";
   }
